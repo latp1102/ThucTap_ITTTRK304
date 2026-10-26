@@ -1,3 +1,4 @@
+# Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 # ============================================================
 # Dockerfile — Frontend (React + Vite / Node 20)
 # Multi-stage build: builder → nginx runtime

@@ -1,3 +1,4 @@
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Wallet, Eye, EyeOff } from 'lucide-react';
@@ -51,7 +52,15 @@ export default function Login() {
 
     try {
       const response = await api.post<AuthResponse>('/auth/login', formData);
-      login(response.data.user, response.data.token);
+      login({
+        id: response.data.userId,
+        username: response.data.username,
+        email: response.data.email,
+        fullName: response.data.fullName,
+        role: response.data.role,
+        isActive: true,
+        createdAt: '',
+      }, response.data.accessToken, response.data.refreshToken);
       toast.success('Đăng nhập thành công!');
       navigate('/');
     } catch (error: any) {

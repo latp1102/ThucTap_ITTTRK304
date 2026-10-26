@@ -1,0 +1,104 @@
+BÁO CÁO Ð? CUONG D? ÁN SO B?
+PROJECT PROPOSAL & WORKFLOW INITIALIZATION
+? H?c ph?n: Phát tri?n D? án Ph?n m?m / Ð? án Chuyên ngành
+? L?p h?c ph?n: HN-KS24-CNTT1
+? Nhóm th?c hi?n: Nhóm 04
+? Gi?ng viên hu?ng d?n: ThS. Gi?ng viên Bùi Thanh H?i
+? H?n n?p & Ngày n?p: 13/11/2026
+1. THÔNG TIN CHUNG & T?NG H?P LIÊN K?T D? ÁN
+H?ng m?c bàn giao Ðu?ng d?n liên k?t (URL) / Ghi chú GitHub / GitLab RepositoryJira / Trello Work BoardChua cóTài li?u d?c t? (SRS / Figma)SRS-OJT-Nhom04
+2. PHÂN CHIA NHÂN S? & VAI TRÒ TRÁCH NHI?M
+Quy mô nhóm: 04 thành viên. Phân d?nh rõ trách nhi?m cho t?ng v? trí k? thu?t:
+STT H? và Tên Vai trò chính Ph?m vi trách nhi?m chi ti?t 1Tr?n H?u Nh?tBackend & DevOps Lead- Thi?t k? ki?n trúc h? th?ng, xây d?ng toàn b? RESTful API cho qu?n lý tài chính.
+- Xây d?ng logic nghi?p v? c?t lõi: Ghi chép giao d?ch thu/chi, qu?n lý ví/tài kho?n ngu?n ti?n, thi?t l?p h?n m?c ngân sách, tính nang qu?n lý ví/qu? gia dình dùng chung, và tính toán s? du t? d?ng.
+- Xây d?ng co ch? xác th?c và phân quy?n ngu?i dùng (Spring Security, JWT).
+- Ðóng gói h? th?ng b?ng Docker, Docker Compose và c?u hình môi tru?ng tri?n khai Nginx reverse proxy.2Nguy?n Hoàng PhúcFrontend Lead & UI/UX- Thi?t k? giao di?n UI/UX và xây d?ng các màn hình responsive tr?c quan (S? thu chi cá nhân, Ví gia dình, Bi?u d? ngân sách).
+- Qu?n lý tr?ng thái ?ng d?ng (State Management) và x? lý logic tuong tác phía Client.
+- Tích h?p RESTful API t? Backend vào giao di?n: Form nh?p giao d?ch nhanh, b? l?c báo cáo, b?ng bi?u d? tr?c quan hóa d? li?u dòng ti?n.
+- Xây d?ng giao di?n b?ng di?u khi?n qu?n tr? (Admin Dashboard).3La Th? PhongDatabase & Data Lead- Thi?t k? so d? quan h? CSDL (ERD) và chu?n hóa d? li?u tài chính (Ngu?i dùng, Nhóm gia dình, Ví ti?n, Giao d?ch, Danh m?c thu chi, Ngân sách).
+- Vi?t k?ch b?n kh?i t?o CSDL (SQL scripts, Seeding danh m?c chi tiêu chu?n), c?u hình Index t?i uu hóa truy v?n dòng ti?n và báo cáo theo chu k?.
+- Ph?i h?p xây d?ng các câu l?nh truy v?n phân tích, t?ng h?p s? du và d?i soát tài chính.4Nguy?n M?nh Th?ngQA / Tester & Vi?t báo cáo- Xây d?ng danh sách k?ch b?n ki?m th? (Test Cases) chi ti?t: Ki?m th? tính chính xác c?a s? du, lu?ng chia s? ví gia dình, phân quy?n giao d?ch.
+- Th?c hi?n ki?m th? ch?c nang (Functional Testing) và ki?m th? lu?ng ngu?i dùng E2E.
+- Qu?n lý và theo dõi l?i phát sinh (Bug Tracking) cùng Backend/Frontend.
+- So?n th?o tài li?u d? án, hu?ng d?n s? d?ng và vi?t báo cáo t?ng k?t d? án.
+3. T?NG QUAN Ð? TÀI D? ÁN
+3.1. Tên d? tài
+H? th?ng Qu?n lý Thu chi Cá nhân và Gia dình (Personal & Family Financial Management System)
+3.2. B?i c?nh & Lý do ch?n d? tài
+Qu?n lý tài chính cá nhân và phân b? ngân sách gia dình là m?t nhu c?u thi?t y?u d?i v?i m?i cá nhân và h? gia dình trong xã h?i hi?n d?i. Tuy nhiên, ph?n l?n m?i ngu?i v?n duy trì thói quen ghi chép th? công trên s? tay ho?c ghi chú r?i rác trên di?n tho?i, d?n d?n vi?c d? th?t l?c s? li?u, khó n?m b?t b?c tranh toàn c?nh v? dòng ti?n, và thu?ng xuyên roi vào tình tr?ng chi tiêu vu?t quá h?n m?c. Ð?c bi?t trong ph?m vi gia dình, vi?c minh b?ch các kho?n chi tiêu chung, chia s? trách nhi?m tài chính và dóng góp vào các qu? m?c tiêu chung (mua s?m tài s?n, du l?ch, qu? kh?n c?p) thu?ng g?p nhi?u b?t c?p.
+D? án du?c xây d?ng nh?m cung c?p gi?i pháp chuy?n d?i s? toàn di?n trong qu?n lý tài chính: h? tr? cá nhân ghi chép các giao d?ch thu chi nhanh chóng, l?p k? ho?ch ngân sách và phân tích dòng ti?n; d?ng th?i cung c?p tính nang "Không gian gia dình" cho phép các thành viên cùng qu?n lý các ví chung m?t cách minh b?ch, nh?n c?nh báo khi vu?t ngân sách và hu?ng t?i các m?c tiêu tài chính b?n v?ng.
+3.3. Ð?i tu?ng s? d?ng h? th?ng
+? Cá nhân / Thành viên gia dình (Member / Personal User):
+? Ghi chép nhanh các kho?n thu và chi tiêu h?ng ngày theo danh m?c (An u?ng, Ti?n di?n nu?c, Mua s?m, Luong,...).
+? Qu?n lý nhi?u tài kho?n/ví ti?n (Ví ti?n m?t, Tài kho?n ngân hàng, Ví di?n t?).
+? Tham gia vào nhóm gia dình, theo dõi dòng ti?n dóng góp/chi tiêu chung.
+? Thi?t l?p và theo dõi h?n m?c ngân sách chi tiêu trong tháng.
+? Xem báo cáo th?ng kê thu chi tr?c quan b?ng bi?u d? và danh sách l?ch s? bi?n d?ng s? du.
+? Ch? gia dình / Tru?ng nhóm (Family Owner / Group Admin):
+? T?o không gian gia dình, m?i các thành viên tham gia qua mã m?i ho?c email.
+? Phân quy?n thành viên (Xem, Ghi chép, ho?c Toàn quy?n phê duy?t chi tiêu l?n).
+? T?o và qu?n lý các ví qu? chung c?a gia dình.
+? Cài d?t h?n m?c chi tiêu t?ng th? và d?nh m?c cho t?ng h?ng m?c c?a gia dình.
+? Qu?n tr? viên h? th?ng (Admin):
+? Qu?n lý tài kho?n ngu?i dùng, chu?n hóa danh m?c thu chi m?c d?nh toàn h? th?ng.
+? Giám sát tình tr?ng ho?t d?ng và tài nguyên c?a h? th?ng.
+
+4. PH?M VI & TÍNH NANG CHÍNH (FEATURE SCOPE)
+4.1. Phân h? Qu?n lý Cá nhân & Gia dình
+? Xác th?c & Tài kho?n:
+? Ðang ký, dang nh?p và qu?n lý h? so cá nhân an toàn b?ng Spring Security & JWT.
+? Qu?n lý Ngu?n ti?n & Ví:
+? T?o và qu?n lý các ví riêng l?: Ti?n m?t, Th? tín d?ng, Tài kho?n ngân hàng.
+? Chuy?n ti?n qua l?i gi?a các ví n?i b? (Ví d?: Rút ti?n t? ngân hàng v? ti?n m?t).
+? Qu?n lý Thu - Chi & Giao d?ch:
+? Thêm, s?a, xóa giao d?ch thu/chi kèm ghi chú, danh m?c, th?i gian và hóa don dính kèm.
+? T? d?ng tính toán và c?p nh?t s? du kh? d?ng t?c thì.
+? L?c và tìm ki?m giao d?ch theo th?i gian, danh m?c, ví ti?n ho?c s? ti?n.
+? Không gian Tài chính Gia dình:
+? T?o nhóm gia dình, qu?n lý danh sách thành viên tham gia.
+? T?o qu?/ví chung cho gia dình (Ti?n sinh ho?t, Qu? ti?t ki?m, Ti?n h?c phí con cái).
+? Ghi chép chi tiêu chung v?i thông tin thành viên th?c hi?n giao d?ch, d?m b?o minh b?ch tài chính.
+? Ngân sách & C?nh báo:
+? Thi?t l?p h?n m?c ngân sách tháng theo t?ng danh m?c c? th? (Ví d?: An u?ng t?i da 4.000.000 VNÐ/tháng).
+? C?nh báo tr?c quan khi ti?n trình chi tiêu ch?m ngu?ng 80% ho?c vu?t quá 100% ngân sách dã d? ra.
+? Báo cáo & Th?ng kê:
+? Bi?u d? co c?u thu chi (Pie chart), bi?u d? bi?n d?ng dòng ti?n theo tu?n/tháng/nam (Bar/Line chart).
+? Xu?t d? li?u báo cáo thu chi cá nhân ho?c gia dình ra d?nh d?ng Excel/PDF.
+4.2. Phân h? Qu?n tr? viên (Admin)
+? Qu?n lý H? th?ng & Ngu?i dùng:
+? Qu?n lý danh sách ngu?i dùng, kích ho?t ho?c khóa tài kho?n.
+? Qu?n lý Danh m?c M?c d?nh:
+? Thi?t l?p và chu?n hóa danh m?c thu, danh m?c chi tiêu m?u dùng chung cho ngu?i dùng m?i.
+? Dashboard Th?ng kê H? th?ng:
+? Giám sát s? lu?ng ngu?i dùng ho?t d?ng, s? lu?ng nhóm gia dình và t?ng lu?ng giao d?ch phát sinh trên h? th?ng.
+
+5. KI?N TRÚC K? THU?T & CÔNG NGH? ÁP D?NG
+T?ng ki?n trúc (Layer) Công ngh? & Thu vi?n l?a ch?n Frontend ClientHTML5, CSS3, JavaScript (ES6+), React.js (ho?c Thymeleaf/Bootstrap/Tailwind CSS), Chart.js (ho?c ApexCharts d? v? bi?u d? tài chính tr?c quan), Axios.Backend API ServiceJava Spring Boot, Spring Web, Spring Data JPA, Spring Security (Xác th?c và phân quy?n JWT), ki?n trúc RESTful API.Database ManagementMySQL / PostgreSQL (Luu tr? quan h?: Ngu?i dùng, Ví, Nhóm gia dình, Giao d?ch, Ngân sách), Hibernate ORM.Báo cáo & Ti?n íchThu vi?n Apache POI (H? tr? nh?p/xu?t d? li?u giao d?ch thu chi sang d?nh d?ng Excel).DevOps & Tri?n khaiDocker, Docker Compose (Ðóng gói ?ng d?ng và co s? d? li?u), Nginx (Reverse Proxy), Ubuntu VPS.
+6. K? HO?CH TRI?N KHAI THEO SPRINT (ROADMAP)
+Giai do?n Sprint Th?i gian M?c tiêu & Deliverables chính Sprint 1: Kh?i t?o, Phân tích & Ki?n trúc n?n t?ngT? 26/10/2026 - 01/11/2026 (Tu?n 1)- Kh?o sát yêu c?u, hoàn thi?n tài li?u d?c t? (SRS) và thi?t k? so d? CSDL (ERD) chi ti?t.
+- Kh?i t?o GitHub repository, thi?t l?p chu?n quy u?c d? án và quy trình làm vi?c nhóm.
+- D?ng c?u trúc khung d? án Spring Boot, tích h?p Docker/Docker Compose và t?o k?ch b?n CSDL m?u (init.sql).
+- Hoàn thi?n phân h? Authentication & Authorization (Ðang ký, Ðang nh?p, phân quy?n v?i JWT).Sprint 2: Phát tri?n Core Modules (Thu chi cá nhân & Không gian gia dình)T? 02/11/2026 - 08/11/2026 (Tu?n 2)- Xây d?ng API và giao di?n qu?n lý Ví, thêm/s?a/xóa Giao d?ch thu chi h?ng ngày.
+- Xây d?ng tính nang Không gian gia dình: T?o nhóm, m?i thành viên, phân quy?n và t?o ví dùng chung.
+- Xây d?ng ch?c nang qu?n lý Ngân sách (Budget) và co ch? tính toán c?nh báo vu?t d?nh m?c chi tiêu.
+- K?t n?i Frontend v?i RESTful API, hoàn thi?n lu?ng ngu?i dùng chính trên giao di?n Web.Sprint 3: Báo cáo th?ng kê, T?i uu hóa, Ki?m th? & Ðóng gói bàn giaoT? 09/11/2026 - 13/11/2026 (Tu?n 3)- Tích h?p h? th?ng bi?u d? dòng ti?n (Chart.js / ApexCharts) và tính nang xu?t file báo cáo Excel (Apache POI).
+- Hoàn thi?n b?ng di?u khi?n qu?n tr? (Admin Dashboard).
+- Th?c hi?n ki?m th? toàn di?n (Functional Testing, E2E Testing, ki?m tra tính toàn v?n và d? chính xác c?a s? du ví).
+- Rà soát b?o m?t, fix bug, tri?n khai h? th?ng lên VPS v?i Docker & Nginx.
+- Hoàn thi?n báo cáo t?ng k?t d? án và tài li?u hu?ng d?n s? d?ng d? n?p vào ngày 13/11/2026.
+7. QUY U?C LÀM VI?C & QU?N TR? D? ÁN
+? Phân nhánh Git (Git Flow):
+? main: Nhánh ch?a mã ngu?n ?n d?nh nh?t ph?c v? báo cáo và nghi?m thu.
+? develop: Nhánh tích h?p mã ngu?n chung c?a c? nhóm.
+? Nhánh tính nang: Ð?t tên theo cú pháp feat/<tên-thành-viên>-<tên-ch?c-nang> ho?c fix/....
+? Chu?n Commit (Conventional Commits):
+? feat:: Thêm tính nang m?i (ví d?: t?o ví, ghi chép giao d?ch, chia s? qu? gia dình).
+? fix:: S?a l?i tính toán s? du, hi?n th? bi?u d?.
+? docs:: C?p nh?t tài li?u, README, báo cáo d? án.
+? refactor:: T?i uu mã ngu?n, c?i thi?n hi?u nang truy v?n CSDL.
+? chore:: C?u hình dependencies, Docker, build script.
+? Pull Request (PR) & Review:
+? M?i dóng góp code d?u ph?i thông qua Pull Request vào nhánh develop.
+? C?n t?i thi?u 01 thành viên khác review và phê duy?t tru?c khi merge code d? d?m b?o ch?t lu?ng.
+? 
+

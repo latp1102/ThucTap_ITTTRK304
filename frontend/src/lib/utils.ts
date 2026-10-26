@@ -1,3 +1,4 @@
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 

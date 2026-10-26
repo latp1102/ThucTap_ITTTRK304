@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.controller;
 
 import com.example.bton.dto.request.FinancialSpaceRequest;
@@ -42,6 +43,14 @@ public class FinancialSpaceController {
             @AuthenticationPrincipal UserPrincipal currentUser) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(spaceService.createSpace(request, currentUser.getId()));
+    }
+
+    @PostMapping("/join")
+    @Operation(summary = "Join family space using invite code (UC09)")
+    public ResponseEntity<FinancialSpaceResponse> joinFamily(
+            @RequestParam String inviteCode,
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        return ResponseEntity.ok(spaceService.joinFamilyByInviteCode(inviteCode, currentUser.getId()));
     }
 
     @GetMapping("/{id}")
@@ -98,6 +107,15 @@ public class FinancialSpaceController {
             @PathVariable Long userId,
             @AuthenticationPrincipal UserPrincipal currentUser) {
         spaceService.removeMember(id, userId, currentUser.getId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/leave")
+    @Operation(summary = "Leave a family space (FIN-NB12)")
+    public ResponseEntity<Void> leaveFamily(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        spaceService.leaveFamily(id, currentUser.getId());
         return ResponseEntity.noContent().build();
     }
 }

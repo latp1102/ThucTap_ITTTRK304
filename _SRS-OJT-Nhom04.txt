@@ -1,0 +1,318 @@
+TÀI LI?U Ð?C T? YÊU C?U PH?N M?M (SRS)
+H? TH?NG QU?N LÝ THU CHI CÁ NHÂN VÀ GIA ÐÌNH
+(Personal & Family Financial Management System - Spring Boot & React)
+Tru?ngN?i dungD? ánH? th?ng Qu?n lý Thu chi Cá nhân và Gia dình (B?n Spring Boot + RESTful API / Client)Ðon v?H?c vi?n Công ngh? Buu chính Vi?n thông - Khoa Công ngh? Thông tinNhóm th?c hi?nNhóm 04: Tr?n H?u Nh?t, La Th? Phong, Nguy?n Hoàng Phúc, Nguy?n M?nh Th?ng Ngày c?p nh?t26/10/2026Mã tài li?uSRS-FINANCE-SB-2026-001Phiên b?n1.0Tr?ng tháiÐ?c t? k? thu?t và phân tích nghi?p v? chu?n hóa ph?c v? tri?n khai d? ánL?ch s? phiên b?n
+Phiên b?nNgàyNgu?i th?c hi?nN?i dung1.026/10/2026Tr?n H?u Nh?t & Nhóm 04Kh?i t?o tài li?u d?c t? SRS: nghi?p v? thu chi cá nhân, ví gia dình, ngân sách, báo cáo và ki?n trúc h? th?ngTài li?u liên quan, tham kh?o
+NgàyTên tài li?uNgu?n26/10/2026Báo cáo d? cuong d? án so b? (Personal & Family Financial Management)Nhóm 04 n?i b?-Spring Boot 3.x Reference Documentationdocs.spring.io-Spring Security 6 & JWT Architecture Documentationspring.io-Chu?n báo cáo k? toán và phân lo?i chi tiêu cá nhânTiêu chu?n tài chính vi môM?C L?C
+? PH?N 1: GI?I THI?U
+? 1.1 M?c dích tài li?u
+? 1.2 Ph?m vi tài li?u
+? 1.3 T?ng quan ?ng d?ng
+? 1.4 Thu?t ng? và t? vi?t t?t
+? PH?N 2: YÊU C?U T?NG TH?
+? 2.1 So d? quan h? th?c th? (ERD) & Ð?c t? CSDL
+? 2.2 So d? Use Case t?ng quan & B?ng danh m?c UC
+? 2.3 So d? lu?ng nghi?p v? c?t lõi
+? 2.4 Vòng d?i và tr?ng thái giao d?ch / ngân sách
+? 2.5 Ma tr?n phân quy?n (Ch?c nang & D? li?u)
+? 2.6 So d? c?u trúc trang (Site Map)
+? PH?N 3: Ð?C T? CHI TI?T USE CASE (UC01 - UC16 & UC M? R?NG)
+? PH?N 4: H? TH?NG THÔNG BÁO & C?NH BÁO (NOTIFICATION & ALERT CODES)
+? PH?N 5: YÊU C?U PHI CH?C NANG (NFR)
+? PH?N 6: Ð?I CHI?U TRI?N KHAI & PHÂN CÔNG K? THU?T
+PH?N 1: GI?I THI?U
+1.1 M?c dích tài li?u
+Tài li?u này d?c t? chi ti?t toàn b? yêu c?u ch?c nang và phi ch?c nang c?a "H? th?ng Qu?n lý Thu chi Cá nhân và Gia dình". Tài li?u dóng vai trò là can c? k? thu?t chính xác ph?c v? thi?t k? co s? d? li?u, xây d?ng RESTful API, tri?n khai giao di?n ngu?i dùng, l?p k? ho?ch ki?m th? (Test Cases) và nghi?m thu d? án.
+1.2 Ph?m vi tài li?u
+? Ph?m vi nghi?p v? bao quát:
+? Qu?n lý tài chính cá nhân: Qu?n lý nhi?u tài kho?n/ví ngu?n ti?n (ti?n m?t, th? ngân hàng, ví di?n t?), ghi nh?n thu chi, chuy?n ti?n n?i b?.
+? Qu?n lý không gian gia dình (Family Space): T?o nhóm gia dình, m?i thành viên, t?o ví dùng chung, chia s? trách nhi?m dóng góp chi tiêu gia dình.
+? Giám sát ngân sách & C?nh báo: L?p k? ho?ch d?nh m?c chi theo danh m?c, kích ho?t c?nh báo thông minh khi vu?t ngu?ng 80% và 100%.
+? Th?ng kê, phân tích và xu?t d? li?u: Tr?c quan hóa dòng ti?n (bi?u d? co c?u thu/chi, xu hu?ng thu chi), d?i soát s? du và xu?t báo cáo Excel/PDF.
+? Ph?m vi lo?i tr?: H? th?ng không th?c hi?n liên k?t thanh toán trung gian tr?c ti?p d? tr? ti?n tài kho?n ngân hàng th?c t? ngoài d?i, không cung c?p tính nang d?u tu ch?ng khoán ho?c cho vay tín d?ng ph?c t?p trong phiên b?n này.
+1.3 T?ng quan ?ng d?ng
+? Ki?n trúc phân t?ng:
+? Backend: Java Spring Boot, Spring Web MVC (ki?n trúc RESTful API /api/**), Spring Data JPA/Hibernate, Spring Security k?t h?p JSON Web Token (JWT) cho xác th?c Stateless.
+? Frontend: Single Page Application (React / HTML5 / Tailwind CSS / Bootstrap), Axios g?i API, Chart.js / ApexCharts bi?u di?n s? li?u d? th? tài chính.
+? Database: MySQL 8 chu?n hóa quan h? th?c th?, ràng bu?c khóa ngo?i và Index t?i uu hóa truy v?n dòng ti?n.
+? Tri?n khai: Docker & Docker Compose da t?ng k?t h?p Nginx làm Reverse Proxy trên môi tru?ng Linux Ubuntu VPS.
+1.4 Thu?t ng? vi?t t?t
+STTT? vi?t t?tDi?n gi?i1SRSSoftware Requirements Specification - Ð?c t? yêu c?u ph?n m?m2UCUse Case - Ca s? d?ng3ERDEntity Relationship Diagram - So d? quan h? th?c th?4JWTJSON Web Token - Chu?n token xác th?c ngu?i dùng5StatelessKi?n trúc không luu phiên tr?ng thái trên máy ch? b? nh?6BudgetH?n m?c ngân sách quy d?nh trong m?t chu k? th?i gian7Cash FlowDòng ti?n luân chuy?n (Thu - Chi)8E2EEnd-to-End Testing - Ki?m th? toàn trìnhPH?N 2: YÊU C?U T?NG TH?
+2.1 So d? quan h? th?c th? (ERD) & C?u trúc co s? d? li?u
+H? th?ng du?c thi?t k? chu?n hóa g?m 12 b?ng th?c th? chính, gi?i quy?t bài toán d?c l?p gi?a ví cá nhân và ví chung gia dình:
+          +--------------------+
+           |       roles        |
+           +--------------------+
+                     | 1
+                     | N
+           +--------------------+ 1      N +--------------------+
+           |       users        |<--------|    refresh_tokens  |
+           +--------------------+         +--------------------+
+             | 1            | 1
+             | N            | N
++--------------------+   +--------------------+ 1      N +--------------------+
+|  family_members    |   |     categories     |--------->|      budgets       |
++--------------------+   +--------------------+          +--------------------+
+       N |                        | 1                             | 1
+       | 1                        | N                             | N
++--------------------+ 1      N +--------------------+   +--------------------+
+|     families       |--------->|      wallets       |---| budget_categories  |
++--------------------+          +--------------------+   +--------------------+
+                                          | 1
+                                          | N
+                                +--------------------+ 1      N +--------------------+
+                                |    transactions    |<---------| transaction_receipts|
+                                +--------------------+          +--------------------+
+
+B?ng mô t? chi ti?t các th?c th?:
+1. roles: Phân quy?n h? th?ng (id, name [ROLE_USER, ROLE_ADMIN], description).
+2. users: Ngu?i dùng h? th?ng (id, name, email, password_hash, phone, avatar, role_id, status, created_at).
+3. families: Không gian gia dình (id, name, invite_code, owner_id, description, created_at).
+4. family_members: Thành viên gia dình (id, family_id, user_id, role_in_family [OWNER, MEMBER, VIEWER], joined_at).
+5. wallets: Tài kho?n/Ví ngu?n ti?n (id, user_id, family_id, name, wallet_type [CASH, BANK, E_WALLET], balance, currency, is_shared, status).
+6. categories: Danh m?c phân lo?i thu chi (id, user_id, name, type [EXPENSE, INCOME], icon, color, is_default).
+7. transactions: Giao d?ch thu/chi (id, wallet_id, category_id, user_id, amount, transaction_date, type [EXPENSE, INCOME, TRANSFER], destination_wallet_id, note, created_at).
+8. transaction_receipts: Hóa don/?nh dính kèm giao d?ch (id, transaction_id, file_url, file_name, created_at).
+9. budgets: H?n m?c ngân sách (id, user_id, family_id, name, amount, spent_amount, start_date, end_date, status).
+10. budget_categories: Liên k?t nhi?u danh m?c vào m?t ngân sách (id, budget_id, category_id).
+11. refresh_tokens: Token duy trì phiên xác th?c Stateless JWT (id, user_id, token, expiry_date).
+12. audit_logs: L?ch s? tác d?ng d? li?u (id, user_id, action, entity_name, entity_id, timestamp).
+2.2 So d? Use Case t?ng quan & B?ng danh m?c UC
+                     +------------------------------------------+
+                      |         H? TH?NG QU?N LÝ THU CHI         |
+                      |                                          |
+                      |  [UC01] Ðang ký, Ðang nh?p, JWT          |
+                      |  [UC02] Qu?n lý H? so cá nhân            |
+                      |  [UC03] Qu?n lý Ví ti?n & S? du          |<===== (Ngu?i dùng Cá nhân)
+                      |  [UC04] Chuy?n ti?n n?i b? gi?a các ví   |
+                      |  [UC05] Ghi chép Giao d?ch Thu/Chi       |
+                      |  [UC06] Qu?n lý Danh m?c Thu/Chi         |
+                      |  [UC07] L?p Ngân sách & C?nh báo b?i chi |
+                      |  [UC08] T?o Nhóm Gia dình & Mã m?i       |<===== (Ch? h? / Family Owner)
+                      |  [UC09] Tham gia Nhóm Gia dình           |
+                      |  [UC10] Qu?n lý Ví & Giao d?ch Gia dình  |
+                      |  [UC11] Phân quy?n thành viên Gia dình   |
+                      |  [UC12] Báo cáo Dòng ti?n & Co c?u Chi   |
+                      |  [UC13] Xu?t Báo cáo Excel / PDF         |
+                      |                                          |
+                      |  [UC14] B?ng di?u khi?n Qu?n tr? (Admin) |
+                      |  [UC15] Qu?n lý Ngu?i dùng h? th?ng      |<===== (Qu?n tr? viên / Admin)
+                      |  [UC16] Qu?n lý Danh m?c chu?n h? th?ng  |
+                      +------------------------------------------+
+
+Mã UCTên Use CasePhân h?Tác nhân chínhTr?ng thái tri?n khaiUC01Ðang ký, Ðang nh?p, C?p phát JWT & Refresh TokenTài kho?nT?t c?Ðã thi?t k?UC02Xem & C?p nh?t H? so cá nhânTài kho?nNgu?i dùngÐã thi?t k?UC03Kh?i t?o & Qu?n lý danh sách Ví ti?n cá nhânNgu?n ti?nNgu?i dùngÐã thi?t k?UC04Chuy?n ti?n qua l?i gi?a các ví n?i b?Ngu?n ti?nNgu?i dùngÐã thi?t k?UC05Thêm, s?a, xóa Giao d?ch Thu/Chi (Transaction)S? giao d?chNgu?i dùng, Thành viênÐã thi?t k?UC06Qu?n lý Danh m?c Thu Chi cá nhân (Category)Phân lo?iNgu?i dùngÐã thi?t k?UC07Thi?t l?p H?n m?c Ngân sách & C?nh báo vu?t chiNgân sáchNgu?i dùng, Ch? h?Ðã thi?t k?UC08Kh?i t?o Nhóm Gia dình & Sinh mã m?i (Invite Code)Gia dìnhCh? h? (Family Owner)Ðã thi?t k?UC09Nh?p mã m?i d? Tham gia Gia dìnhGia dìnhNgu?i dùngÐã thi?t k?UC10Qu?n lý Ví chung & Ghi chép chi tiêu Gia dìnhGia dìnhThành viên gia dìnhÐã thi?t k?UC11Phân quy?n & Qu?n lý thành viên trong Gia dìnhGia dìnhCh? h? (Family Owner)Ðã thi?t k?UC12Xem Báo cáo Dòng ti?n & Bi?u d? Co c?u chi tiêuBáo cáoNgu?i dùng, Thành viênÐã thi?t k?UC13Xu?t Báo cáo Thu Chi sang t?p Excel / PDFBáo cáoNgu?i dùng, Ch? h?Ðã thi?t k?UC14B?ng di?u khi?n Qu?n tr? h? th?ng (Admin Dashboard)Qu?n tr?Qu?n tr? viên (Admin)Ðã thi?t k?UC15Qu?n lý Ngu?i dùng h? th?ng (Khóa / M? khóa)Qu?n tr?Qu?n tr? viên (Admin)Ðã thi?t k?UC16Qu?n lý Danh m?c thu chi m?c d?nh toàn h? th?ngQu?n tr?Qu?n tr? viên (Admin)Ðã thi?t k?UC17(M? r?ng) Quét OCR Hóa don mua hàng t? d?ng trích xu?tTi?n ích AINgu?i dùngChua tri?n khaiUC18(M? r?ng) Giao d?ch l?p l?i d?nh k? (Recurring Billing)S? giao d?chNgu?i dùngChua tri?n khai2.3 So d? lu?ng nghi?p v? c?t lõi
+Lu?ng ghi chép giao d?ch và c?p nh?t s? du t?c th?i:
+[Ngu?i dùng nh?p Form] 
+       ¦ (S? ti?n, Ví, Lo?i Thu/Chi, Danh m?c, Ghi chú, ?nh)
+       ?
+[Frontend: Validate Form] --(H?p l?)--> [G?i Request POST /api/transactions]
+                                                   ¦
+                                                   ?
+                                        [Backend: Xác th?c JWT]
+                                                   ¦
+                                                   ?
+                                    [M? Transaction DB ACID]
+                                                   ¦
+             +---------------------------------------------------------------------------+
+             ?                                                                           ?
+   [Ki?m tra quy?n s? h?u Ví]                                           [Tính toán bi?n d?ng s? du]
+   - N?u Ví cá nhân: user_id kh?p                                       - EXPENSE: wallet.balance -= amount
+   - N?u Ví gia dình: quy?n MEMBER/OWNER                                - INCOME:  wallet.balance += amount
+             ¦                                                                           ¦
+             +---------------------------------------------------------------------------+
+                                                   ¦
+                                                   ?
+                                      [Ki?m tra H?n m?c Ngân sách]
+                                      - Quét ngân sách thu?c tháng c?a category_id
+                                      - C?ng d?n spent_amount
+                                      - N?u vu?t ngu?ng 80% / 100% -> Kèm Alert Warning
+                                                   ¦
+                                                   ?
+                                        [Commit Giao d?ch DB]
+                                                   ¦
+                                                   ?
+                                [Tr? v? HTTP 201 Created kèm Data m?i]
+
+2.4 Vòng d?i và tr?ng thái giao d?ch / ngân sách
+? Giao d?ch (Transaction):
+? T?o l?p (CREATED) ? Kh?u tr?/C?ng s? du tr?c ti?p ? H?p l? (ACTIVE).
+? Khi ngu?i dùng Xóa giao d?ch: H? th?ng th?c hi?n Rollback hoàn tr? l?i chính xác s? ti?n vào s? du c?a Ví tuong ?ng ? Tr?ng thái chuy?n thành DELETED (Soft delete d? d?i soát ki?m toán).
+? Ngân sách (Budget):
+? NORMAL: Chi tiêu $< 80\%$ h?n m?c.
+? WARNING: Chi tiêu t? $80\% \le \text{Chi tiêu} \le 100\%$ h?n m?c.
+? EXCEEDED: Chi tiêu vu?t quá $100\%$ h?n m?c (B?i chi).
+2.5 Ma tr?n phân quy?n
+Phân quy?n Ch?c nang:
+Ch?c nangKhách (Guest)Ngu?i dùng cá nhânCh? gia dình (Owner)Qu?n tr? viên (Admin)Ðang ký, dang nh?p tài kho?nXXXXQu?n lý Ví & Giao d?ch cá nhân-XX-T?o gia dình & C?p mã m?i-XX-Phân quy?n / Xóa thành viên gia dình--X-Ghi chép chi tiêu vào ví chung gia dình--X (N?u là thành viên)-Xem Dashboard qu?n tr? toàn h? th?ng---XKhóa / M? khóa tài kho?n ngu?i dùng---XC?u hình danh m?c h? th?ng m?c d?nh---XPhân quy?n D? li?u:
+? Ngu?i dùng ch? có quy?n d?c và ch?nh s?a d? li?u do chính mình t?o ra (user_id = me).
+? Ð?i v?i d? li?u Gia dình (family_id): T?t c? các thành viên có tr?ng thái ho?t d?ng trong nhóm d?u có quy?n xem báo cáo và ví chung. Riêng thao tác s?a/xóa ví chung ho?c xóa nhóm ch? duy nh?t OWNER m?i có quy?n th?c hi?n.
+2.6 So d? c?u trúc trang (Site Map)
+[Trang ch? Landing Page]
+   ¦
+   +-- [Xác th?c] --> Ðang nh?p / Ðang ký / Quên m?t kh?u
+   ¦
+   +-- [Khu v?c ?ng d?ng - Dashboard Ngu?i dùng]
+         ¦
+         +-- [S? Giao d?ch] ----------> L?ch s? giao d?ch / Form thêm m?i Thu - Chi
+         ¦
+         +-- [Qu?n lý Ngu?n ti?n] ----> Danh sách Ví (Cá nhân & Chung) / Chuy?n ti?n n?i b?
+         ¦
+         +-- [H?n m?c Ngân sách] -----> Danh sách Budget theo tháng / Ti?n d? chi tiêu
+         ¦
+         +-- [Không gian Gia dình] ---> Thành viên / Qu? chung / Báo cáo dóng góp thành viên
+         ¦
+         +-- [Báo cáo & Th?ng kê] ----> Bi?u d? co c?u chi / Bi?n d?ng dòng ti?n / Xu?t Excel
+         ¦
+         +-- [H? so cá nhân] ---------> Thông tin tài kho?n / Ð?i m?t kh?u
+         ¦
+         +-- [Qu?n tr? viên (Admin)] -> Th?ng kê ngu?i dùng / Khóa tài kho?n / Danh m?c chu?n
+
+PH?N 3: Ð?C T? CHI TI?T USE CASE
+3.1 UC01 - Ðang ký, Ðang nh?p, JWT & Phân quy?n
+? Use Case ID: UC01
+? Mô t?: Cung c?p co ch? xác th?c Stateless s? d?ng Spring Security k?t h?p JSON Web Token (Access Token h?n 60 phút, Refresh Token luu CSDL).
+? Tác nhân: M?i d?i tu?ng ngu?i dùng.
+? Ð? uu tiên: Cao nh?t (P1).
+? Ði?u ki?n tiên quy?t: Không có.
+? Lu?ng co b?n:
+? Ngu?i dùng g?i thông tin dang ký (H? tên, Email, S? di?n tho?i, M?t kh?u).
+? Server ki?m tra tính duy nh?t c?a Email. Bam m?t kh?u b?ng thu?t toán BCrypt.
+? Kh?i t?o tài kho?n, t? d?ng t?o 01 Ví ti?n m?c d?nh ("Ti?n m?t" v?i s? du 0 VNÐ) và gán b? Danh m?c thu chi m?c d?nh.
+? Ðang nh?p: Ngu?i dùng nh?p Email và M?t kh?u ? Xác th?c qua AuthenticationManager.
+? N?u chính xác: Tr? v? c?p Access Token và Refresh Token kèm thông tin ngu?i dùng.
+? Lu?ng ngo?i l?:
+? E1: Email dã t?n t?i trong h? th?ng ? Tr? v? mã l?i HTTP 400 kèm thông báo tuong ?ng.
+? E2: Sai thông tin dang nh?p ? Tr? v? HTTP 401 Unauthorized "Email ho?c m?t kh?u không chính xác".
+? E3: Tài kho?n b? khóa (status = INACTIVE/BLOCKED) ? T? ch?i c?p token.
+3.2 UC03 - Qu?n lý Ví ti?n & S? du
+? Use Case ID: UC03
+? Mô t?: Cho phép ngu?i dùng theo dõi t?ng tài s?n, t?o m?i, ch?nh s?a và dóng các ví ti?n d?i di?n cho các ngu?n ti?n khác nhau.
+? Tác nhân: Ngu?i dùng cá nhân, Ch? gia dình.
+? Ð? uu tiên: Cao (P1).
+? Ði?u ki?n tiên quy?t: Ðã dang nh?p h? th?ng thành công (JWT h?p l?).
+? Lu?ng co b?n:
+1. Ngu?i dùng m? màn hình Qu?n lý ngu?n ti?n. H? th?ng truy v?n danh sách ví: Tên ví, Lo?i ví (Ti?n m?t, Ngân hàng, Ví di?n t?), S? du hi?n t?i, Lo?i ti?n t?.
+2. Ngu?i dùng nh?n "Thêm ví m?i", nh?p Tên ví, ch?n lo?i và nh?p S? du ban d?u.
+3. Server t?o b?n ghi trong b?ng wallets. N?u có s? du ban d?u >0, t? d?ng t?o m?t giao d?ch di?u ch?nh dòng ti?n d?u vào (INCOME) tuong ?ng.
+4. T?ng tài s?n cá nhân du?c t? d?ng c?ng d?n t? s? du c?a t?t c? các ví kh? d?ng.
+? Ràng bu?c nghi?p v?: Không cho phép xóa ví n?u ví dó dã phát sinh giao d?ch trong l?ch s? (ch? cho phép chuy?n tr?ng thái ARCHIVED d? b?o d?m tính toàn v?n s? li?u k? toán).
+3.3 UC04 - Chuy?n ti?n n?i b? gi?a các ví
+? Use Case ID: UC04
+? Mô t?: Chuy?n ti?n t? ví này sang ví khác trong cùng tài kho?n c?a ngu?i dùng (ví d?: rút ti?n t? tài kho?n Ngân hàng v? ví Ti?n m?t).
+? Tác nhân: Ngu?i dùng cá nhân.
+? Ð? uu tiên: Cao (P1).
+? Lu?ng co b?n:
+1. Ngu?i dùng ch?n "Chuy?n ti?n".
+2. Ch?n Ví ngu?n (From Wallet), Ví dích (To Wallet), nh?p S? ti?n chuy?n, Phí giao d?ch (n?u có) và Ghi chú.
+3. Server m? m?t Database Transaction:
+¦ Ki?m tra s? du ví ngu?n =(S?ti?nchuy?n+Phí).
+¦ Tr? ti?n ví ngu?n: balance = balance - (amount + fee).
+¦ C?ng ti?n ví dích: balance = balance + amount.
+¦ Ghi nh?n 01 b?n ghi giao d?ch có lo?i TRANSFER g?n liên k?t gi?a 2 ví.
+4. Hoàn t?t và c?p nh?t hi?n th? s? du m?i trên giao di?n.
+? Lu?ng ngo?i l?: Ví ngu?n không d? s? du kh? d?ng ? Báo l?i HTTP 400 "S? du trong ví ngu?n không d? d? th?c hi?n chuy?n kho?n".
+3.4 UC05 - Ghi chép Giao d?ch Thu/Chi (Transaction)
+? Use Case ID: UC05
+? Mô t?: Tính nang ghi chép các kho?n chi tiêu ho?c thu nh?p hàng ngày, kèm danh m?c và hóa don dính kèm.
+? Tác nhân: Ngu?i dùng cá nhân, Thành viên gia dình.
+? Ð? uu tiên: Cao nh?t (P1).
+? Thu?c tính d? li?u:
+1. amount: S? ti?n (B?t bu?c, >0).
+2. type: Lo?i giao d?ch (EXPENSE ho?c INCOME).
+3. wallet_id: Ví thanh toán (B?t bu?c).
+4. category_id: Danh m?c thu/chi (B?t bu?c).
+5. transaction_date: Th?i di?m giao d?ch phát sinh (M?c d?nh: hi?n t?i).
+6. note: Ghi chú chi ti?t (Tùy ch?n, t?i da 255 ký t?).
+7. receipt_image: ?nh ch?p hóa don (Tùy ch?n, luu du?ng d?n file).
+? Lu?ng co b?n:
+1. Ngu?i dùng m? form "T?o giao d?ch", nh?p s? ti?n, ch?n lo?i chi/thu, ví và danh m?c.
+2. Nh?n "Luu giao d?ch".
+3. Server xác th?c quy?n truy c?p ví, ghi b?n ghi vào b?ng transactions, c?p nh?t tr?c ti?p wallets.balance.
+4. N?u là kho?n Chi (EXPENSE): Quét ki?m tra ngân sách có liên k?t v?i danh m?c này trong tháng hi?n t?i. C?p nh?t budgets.spent_amount. N?u vu?t ngu?ng c?nh báo, g?i kèm payload c?nh báo v? client.
+? X? lý Xóa/S?a: Khi s?a s? ti?n c?a giao d?ch, h? th?ng t? d?ng hoàn l?i chênh l?ch s? du cu và tr?/c?ng s? du m?i m?t cách nguyên t? (Atomicity).
+3.5 UC07 - Thi?t l?p H?n m?c Ngân sách & C?nh báo b?i chi
+? Use Case ID: UC07
+? Mô t?: L?p k? ho?ch chi tiêu cho t?ng h?ng m?c c? th? trong tháng (ví d?: "An u?ng" t?i da 4.000.000 VNÐ/tháng).
+? Tác nhân: Ngu?i dùng cá nhân, Ch? h?.
+? Ð? uu tiên: Trung bình (P2).
+? Quy t?c c?nh báo:
+? $\text{T? l? chi} = \frac{\text{S? ti?n dã chi}}{\text{H?n m?c ngân sách}} \times 100\%$
+? $\text{T? l?} \ge 80\%$: H? th?ng hi?n th? thanh ti?n trình màu vàng cam kèm c?nh báo "B?n dã chi tiêu g?n h?t ngân sách".
+? $\text{T? l?} \ge 100\%$: H? th?ng chuy?n thanh ti?n trình sang màu d? kèm thông báo "C?nh báo: B?n dã vu?t quá ngân sách cho danh m?c này!".
+3.6 UC08 & UC09 - Qu?n lý Không gian Gia dình & Gia nh?p b?ng Mã m?i
+? Use Case ID: UC08 & UC09
+? Mô t?: Co ch? chia s? tài chính gia dình thông qua mô hình nhóm.
+? Lu?ng t?o và m?i (UC08):
+1. Ngu?i dùng ch?n "T?o Không gian Gia dình", d?t tên gia dình (ví d?: "Gia dình H?u Nh?t").
+2. H? th?ng sinh m?t chu?i mã ng?u nhiên duy nh?t (Invite Code, ví d?: FAM-8924-XN).
+3. Ngu?i dùng dóng vai trò là OWNER.
+? Lu?ng gia nh?p (UC09):
+1. Thành viên khác dang nh?p tài kho?n cá nhân, ch?n "Tham gia nhóm gia dình".
+2. Nh?p mã m?i FAM-8924-XN.
+3. Server ki?m tra mã h?p l?, thêm b?n ghi vào family_members v?i vai trò MEMBER.
+4. Thành viên ngay l?p t?c nhìn th?y các Ví chung và ngân sách chung c?a gia dình.
+3.7 UC10 - Qu?n lý Ví chung & Chi tiêu Gia dình
+? Use Case ID: UC10
+? Mô t?: Ghi chép chi tiêu t? qu? chung gia dình, minh b?ch hóa ngu?i chi.
+? Tác nhân: Thành viên nhóm gia dình (role_in_family = OWNER ho?c MEMBER).
+? Quy t?c hi?n th?:
+? M?i giao d?ch thu?c ví chung ngoài thông tin s? ti?n, danh m?c s? luôn hi?n th? kèm: "Ðu?c t?o b?i: [Tên thành viên] - [Th?i gian]".
+? Thành viên ch? có th? s?a/xóa giao d?ch do chính mình ghi chép; Ch? gia dình (Owner) có toàn quy?n qu?n tr? m?i giao d?ch trong nhóm.
+3.8 UC12 & UC13 - Báo cáo Tài chính & Xu?t d? li?u Excel
+? Use Case ID: UC12 & UC13
+? Mô t?: T?ng h?p d? li?u thành báo cáo d? th? tr?c quan và h? tr? t?i v? máy du?i d?ng b?ng tính.
+? Chi ti?t bi?u d?:
+? Bi?u d? tròn (Donut / Pie Chart): T? tr?ng co c?u các kho?n chi tiêu theo t?ng danh m?c (An u?ng chi?m bao nhiêu %, Ti?n nhà bao nhiêu %).
+? Bi?u d? c?t/du?ng (Bar / Line Chart): So sánh d?i ?ng gi?a T?ng Thu và T?ng Chi theo t?ng tu?n ho?c theo 12 tháng trong nam.
+? Xu?t báo cáo (UC13): S? d?ng thu vi?n Apache POI phía Backend, trích xu?t toàn b? danh sách giao d?ch g?m: Mã GD, Ngày phát sinh, Lo?i, Danh m?c, S? ti?n, Ngu?i th?c hi?n, Ghi chú ra d?nh d?ng .xlsx chu?n hóa theo bi?u m?u k? toán.
+3.9 UC14, UC15, UC16 - Phân h? Qu?n tr? viên (Admin)
+? Use Case ID: UC14, UC15, UC16
+? Tác nhân: Qu?n tr? viên (role = ROLE_ADMIN).
+? Ch?c nang:
+? UC14 - Dashboard: Th?ng kê t?ng s? lu?ng ngu?i dùng dang ký, s? nhóm gia dình dang ho?t d?ng, t?ng s? giao d?ch du?c t?o theo ngày.
+? UC15 - Qu?n lý User: Xem danh sách ngu?i dùng, tìm ki?m theo email/sdt, kích ho?t ho?c khóa tài kho?n vi ph?m chính sách.
+? UC16 - Danh m?c chu?n: Ð?nh nghia các danh m?c h? th?ng m?c d?nh (ví d?: Luong, Thu?ng, Ti?n di?n, H?c phí, Y t?) d? t? d?ng kh?i t?o cho ngu?i dùng m?i.
+PH?N 4: H? TH?NG THÔNG BÁO & C?NH BÁO
+Mã CodePhân lo?iN?i dung hi?n th? m?uNg? c?nh xu?t hi?nFIN-NB01Thành công"Ðang ký tài kho?n thành công. Chào m?ng b?n d?n v?i h? th?ng!"Sau khi hoàn t?t UC01FIN-NB02Thành công"Ðã ghi nh?n giao d?ch {type}: {amount} VNÐ vào ví {wallet_name}."Sau khi thêm giao d?ch UC05FIN-NB03Thành công"Chuy?n ti?n thành công {amount} VNÐ t? ví {from} sang {to}."Sau khi chuy?n ví UC04FIN-NB04Thành công"T?o nhóm gia dình '{family_name}' thành công. Mã m?i c?a b?n là: {code}."Sau khi t?o nhóm UC08FIN-NB05C?nh báo"Chú ý: Danh m?c '{category}' dã chi tiêu d?t {percent}% h?n m?c ngân sách tháng."Khi giao d?ch ch?m $80\%$ ngân sáchFIN-NB06C?nh báo"B?i chi: B?n dã vu?t quá h?n m?c ngân sách '{budget_name}' {over_amount} VNÐ!"Khi giao d?ch vu?t $100\%$ ngân sáchFIN-NB07C?nh báo"S? du kh? d?ng trong ví không d? d? th?c hi?n kho?n chi này."Chi tiêu vu?t s? du ví ti?n m?tFIN-NB08L?i"Mã m?i gia dình không h?p l? ho?c dã h?t h?n s? d?ng."Tham gia nhóm gia dình th?t b?i (UC09)FIN-NB09L?i"Không th? xóa ví dã phát sinh d? li?u giao d?ch k? toán."Thao tác xóa ví không h?p l? (UC03)FIN-NB10L?i"Email này dã du?c s? d?ng. Vui lòng ch?n email khác."Ðang ký trùng l?p (UC01)FIN-NB11L?i"Phiên dang nh?p dã h?t h?n. Vui lòng dang nh?p l?i."Token JWT h?t h?n ho?c không h?p l?FIN-NB12Xác nh?n"B?n có ch?c ch?n mu?n r?i kh?i nhóm gia dình '{family_name}' không?"Xác nh?n tru?c khi h?y tham giaPH?N 5: YÊU C?U PHI CH?C NANG (NFR)
+5.1 Hi?u nang (Performance)
+? Th?i gian ph?n h?i c?a các RESTful API ghi nh?n giao d?ch, chuy?n ti?n và xem ví ph?i <1.0 giây trong di?u ki?n m?ng bình thu?ng.
+? API truy v?n t?ng h?p báo cáo tháng và bi?u d? phân tích ph?n h?i <2.0 giây v?i t?p d? li?u lên d?n 50.000 b?n ghi giao d?ch.
+? Toàn b? các API phân trang danh sách giao d?ch ph?i th?c hi?n ? t?ng CSDL (LIMIT, OFFSET qua Spring Data JPA Pageable), tuy?t d?i không t?i toàn b? b?n ghi lên b? nh? JVM.
+5.2 An toàn & B?o m?t (Security)
+? M?t kh?u ngu?i dùng: B?t bu?c bam m?t chi?u b?ng thu?t toán BCrypt v?i h? s? d? ph?c t?p (work factor) 10, không luu tr? m?t kh?u d?ng Plaintext du?i b?t k? hình th?c nào.
+? Co ch? xác th?c: Tri?n khai Stateless JWT: Access Token th?i h?n 60 phút, Refresh Token th?i h?n 7 ngày luu trong co s? d? li?u có kh? nang thu h?i (Revocation).
+? Phân quy?n ch?t ch?: Ki?m tra quy?n h?n t?i t?ng Service (@PreAuthorize ho?c ki?m tra logic quy?n s? h?u ví/nhóm), không ch? d?a vào vi?c ?n/hi?n giao di?n phía Client.
+? B?o v? bi?u m?u & API: Phòng ch?ng SQL Injection thông qua Hibernate Prepared Statement; c?u hình CORS ch? cho phép domain c?a Frontend Client k?t n?i.
+5.3 Tính toàn v?n d? li?u (Data Integrity & ACID)
+? M?i thao tác làm thay d?i s? du ví (ghi giao d?ch thu/chi, chuy?n ti?n n?i b?, s?a/xóa giao d?ch) b?t bu?c ph?i du?c bao b?c trong m?t Database Transaction (@Transactional).
+? Ràng bu?c toàn v?n tham chi?u khóa ngo?i gi?a các b?ng: Xóa ngu?i dùng không làm m?t toàn b? l?ch s? k? toán mà chuy?n tr?ng thái d? li?u (Soft Delete).
+5.4 Kh? d?ng & Tuong thích (Usability & Responsiveness)
+? Giao di?n ngu?i dùng áp d?ng thi?t k? Responsive d?t chu?n hi?n th? trên c? thi?t b? di d?ng (Mobile Web) và máy tính d? bàn (Desktop).
+? D? li?u ti?n t? hi?n th? rõ ràng theo d?nh d?ng ti?n t? Vi?t Nam (Ví d?: 1.500.000 ?).
+5.5 Kh? nang b?o trì & Môi tru?ng v?n hành (Maintainability & DevOps)
+? D? án phân chia rõ ràng theo mô hình ki?n trúc da t?ng:
+? Controller: Ti?p nh?n Request, validate d? li?u d?u vào DTO.
+? Service: X? lý toàn b? logic nghi?p v? tài chính.
+? Repository: Tuong tác co s? d? li?u qua Spring Data JPA.
+? Domain / Entity: Ánh x? c?u trúc b?ng CSDL.
+? Ðóng gói toàn b? ?ng d?ng b?ng Docker và Docker Compose: Tách bi?t container backend (Spring Boot), container database (MySQL) và Nginx.
+PH?N 6: Ð?I CHI?U TRI?N KHAI & PHÂN CÔNG K? THU?T
+6.1 Phân b? thành viên và v? trí trách nhi?m
+STTThành viênVai trò d?m nhi?mPh?m vi mã ngu?n ph? trách1Tr?n H?u Nh?tBackend & DevOps Lead- Ki?n trúc toàn b? RESTful API, c?u hình Spring Boot, JWT, Spring Security.
+
+- Xây d?ng Service lõi: TransactionService, WalletService, BudgetService, FamilyService.
+
+- Vi?t Dockerfile, docker-compose.yml, c?u hình Nginx reverse proxy.2Nguy?n Hoàng PhúcFrontend Lead & UI/UX- Xây d?ng giao di?n Web (React / UI Framework), State Management.
+
+- Phát tri?n các màn hình: S? thu chi, Form t?o giao d?ch, Qu?n lý ví, Qu?n tr? Admin.
+
+- Tích h?p thu vi?n bi?u d? tài chính (Chart.js / ApexCharts) tr?c quan hóa dòng ti?n.3La Th? PhongDatabase & Data Lead- Thi?t k? lu?c d? CSDL (ERD), vi?t k?ch b?n init.sql và Data Seeding danh m?c.
+
+- C?u hình Index và t?i uu hóa các câu truy v?n th?ng kê dòng ti?n, s? du theo chu k?.
+
+- Ph?i h?p xây d?ng API trích xu?t d? li?u báo cáo k? toán.4Nguy?n M?nh Th?ngQA / Tester & Vi?t báo cáo- Thi?t k? ma tr?n Test Cases chi ti?t cho t?t c? các ca s? d?ng (UC01 - UC16).
+
+- Th?c hi?n ki?m th? tính toàn v?n s? du ví khi có giao d?ch d?ng th?i và ki?m th? E2E.
+
+- Ph?i h?p theo dõi và phân lo?i bug; biên so?n báo cáo t?ng k?t d? án.6.2 B?ng d?i chi?u cài d?t k? thu?t (Mapping Codebase)
+Mã UCCh?c nang nghi?p v?Thành ph?n Backend (D? ki?n)Giao di?n Frontend (D? ki?n)UC01Xác th?c & JWTAuthController.java, JwtTokenProvider.java, UserService.java/login, /registerUC02Qu?n lý H? soProfileController.java, UserService.java/profileUC03Qu?n lý Ví ti?nWalletController.java, WalletService.java/walletsUC04Chuy?n ti?n n?i b?WalletController.java#transfer, WalletService.javaModal "Chuy?n ti?n n?i b?"UC05Thu - Chi h?ng ngàyTransactionController.java, TransactionService.java/transactions, Form "Thêm giao d?ch"UC06Phân lo?i danh m?cCategoryController.java, CategoryService.java/categoriesUC07Ngân sách & C?nh báoBudgetController.java, BudgetService.java/budgetsUC08-11Nhóm Gia dình & Ví chungFamilyController.java, FamilyService.java/family, /family/membersUC12Báo cáo & Th?ng kêReportController.java, ReportService.java/reports (Bi?u d? Doughnut, Bar)UC13Xu?t t?p ExcelReportController.java#exportExcel, ExcelExportService.javaNút "Xu?t Excel" t?i trang Báo cáoUC14-16B?ng di?u khi?n Qu?n tr?AdminController.java, AdminService.java/admin/dashboard, /admin/users

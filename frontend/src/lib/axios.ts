@@ -1,4 +1,5 @@
-import axios from 'axios';
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../store/authStore';
 
 const api = axios.create({
@@ -8,42 +9,90 @@ const api = axios.create({
   },
 });
 
-// Request interceptor
+// Request interceptor — attach access token
 api.interceptors.request.use(
   (config) => {
-    console.log('🚀 API Request:', config.method?.toUpperCase(), config.url);
     const token = useAuthStore.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    console.error('❌ Request Error:', error);
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor
-api.interceptors.response.use(
-  (response) => {
-    console.log('✅ API Response:', response.config.url, response.status);
-    return response;
-  },
-  (error) => {
-    console.error('❌ Response Error:', error.response?.status, error.message);
-    if (error.response) {
-      console.error('Error Data:', error.response.data);
+// Response interceptor — auto refresh token on 401 (UC01)
+let isRefreshing = false;
+let pendingQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+  config: InternalAxiosRequestConfig;
+}> = [];
+
+const processQueue = (error: unknown, token: string | null) => {
+  pendingQueue.forEach((p) => {
+    if (token && p.config.headers) {
+      p.config.headers.Authorization = `Bearer ${token}`;
+      p.resolve(token);
+    } else {
+      p.reject(error);
     }
-    
-    if (error.response?.status === 401) {
-      const currentPath = window.location.pathname;
-      // Don't logout if already on login page
-      if (currentPath !== '/login' && currentPath !== '/register') {
-        useAuthStore.getState().logout();
-        window.location.href = '/login';
+  });
+  pendingQueue = [];
+};
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
+    const auth = useAuthStore.getState();
+    const currentPath = window.location.pathname;
+    const isAuthPage = currentPath === '/login' || currentPath === '/register';
+
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry &&
+      auth.refreshToken &&
+      !isAuthPage &&
+      !originalRequest.url?.includes('/auth/')
+    ) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          pendingQueue.push({ resolve, reject, config: originalRequest });
+        });
+      }
+      isRefreshing = true;
+      originalRequest._retry = true;
+      try {
+        const { data } = await axios.post('/api/v1/auth/refresh', {
+          refreshToken: auth.refreshToken,
+        });
+        auth.setTokens(data.accessToken, data.refreshToken);
+        processQueue(null, data.accessToken);
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        }
+        return api(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        if (!isAuthPage) {
+          auth.logout();
+          window.location.href = '/login';
+        }
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
+
+    if (error.response?.status === 401 && !isAuthPage) {
+      auth.logout();
+      window.location.href = '/login';
+    }
+
     return Promise.reject(error);
   }
 );

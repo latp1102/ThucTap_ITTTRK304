@@ -1,13 +1,17 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.entity;
 
 import com.example.bton.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notifications")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -40,7 +44,7 @@ public class Notification {
     @Builder.Default
     private Boolean isRead = false;
 
-    @Column(name = "created_at", nullable = false)
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 }

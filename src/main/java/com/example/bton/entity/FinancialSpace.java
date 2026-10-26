@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.entity;
 
 import com.example.bton.enums.SpaceType;
@@ -43,6 +44,9 @@ public class FinancialSpace {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
+
+    @Column(name = "invite_code", length = 50)
+    private String inviteCode;
 
     @Column(name = "is_active", nullable = false)
     @Builder.Default

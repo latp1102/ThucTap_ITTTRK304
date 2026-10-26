@@ -1,3 +1,4 @@
+-- Tác giả: La Thế Phong (Database & Data Lead)
 -- ============================================================
 -- V2: Seed System Categories
 -- Personal Finance Management System (BTON)

@@ -1,3 +1,4 @@
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { FinancialSpace } from '../types';

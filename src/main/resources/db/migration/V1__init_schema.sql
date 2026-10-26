@@ -1,3 +1,4 @@
+-- Tác giả: La Thế Phong (Database & Data Lead)
 -- ============================================================
 -- V1: Initialize Database Schema
 -- Personal Finance Management System (BTON)
@@ -173,6 +174,74 @@ CREATE TABLE notifications (
     INDEX idx_notifications_type (type),
     INDEX idx_notifications_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Wallets table (money sources: cash, bank, e-wallet)
+CREATE TABLE wallets (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    space_id BIGINT,
+    name VARCHAR(100) NOT NULL,
+    wallet_type ENUM('CASH', 'BANK', 'E_WALLET') NOT NULL DEFAULT 'CASH',
+    currency VARCHAR(3) NOT NULL DEFAULT 'VND',
+    balance DECIMAL(15, 2) NOT NULL DEFAULT 0.00,
+    is_shared BOOLEAN NOT NULL DEFAULT FALSE,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY fk_wallets_user (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY fk_wallets_space (space_id) REFERENCES financial_spaces(id) ON DELETE SET NULL,
+    INDEX idx_wallets_user (user_id),
+    INDEX idx_wallets_space (space_id),
+    INDEX idx_wallets_type (wallet_type),
+    INDEX idx_wallets_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Refresh tokens table (JWT refresh token storage)
+CREATE TABLE refresh_tokens (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    token VARCHAR(500) NOT NULL,
+    expiry_date TIMESTAMP NOT NULL,
+    is_revoked BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY fk_refresh_tokens_user (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_refresh_tokens_user (user_id),
+    INDEX idx_refresh_tokens_token (token(255)),
+    INDEX idx_refresh_tokens_revoked (is_revoked)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Transaction receipts table (attached invoice images)
+CREATE TABLE transaction_receipts (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    transaction_id BIGINT NOT NULL,
+    file_url VARCHAR(500) NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY fk_receipts_transaction (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
+    INDEX idx_receipts_transaction (transaction_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Budget categories junction table (many categories per budget)
+CREATE TABLE budget_categories (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    budget_id BIGINT NOT NULL,
+    category_id BIGINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY fk_budget_categories_budget (budget_id) REFERENCES budgets(id) ON DELETE CASCADE,
+    FOREIGN KEY fk_budget_categories_category (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_budget_category (budget_id, category_id),
+    INDEX idx_budget_categories_budget (budget_id),
+    INDEX idx_budget_categories_category (category_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Add wallet_id column to transactions table
+ALTER TABLE transactions
+    ADD COLUMN wallet_id BIGINT,
+    ADD FOREIGN KEY fk_transactions_wallet (wallet_id) REFERENCES wallets(id) ON DELETE SET NULL,
+    ADD INDEX idx_transactions_wallet (wallet_id);
 
 -- Audit logs table (admin actions)
 CREATE TABLE audit_logs (

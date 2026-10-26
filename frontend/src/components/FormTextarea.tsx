@@ -1,5 +1,4 @@
-import React from 'react';
-
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 interface FormTextareaProps {
   label: string;
   value: string;

@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.service.impl;
 
 import com.example.bton.dto.request.FinancialSpaceRequest;
@@ -47,12 +48,18 @@ public class FinancialSpaceServiceImpl {
         User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
+        String inviteCode = null;
+        if (request.getType() == SpaceType.FAMILY) {
+            inviteCode = "FAM-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        }
+
         FinancialSpace space = FinancialSpace.builder()
                 .name(request.getName())
                 .description(request.getDescription())
                 .type(request.getType() != null ? request.getType() : SpaceType.PERSONAL)
                 .currency(request.getCurrency() != null ? request.getCurrency() : "VND")
                 .owner(owner)
+                .inviteCode(inviteCode)
                 .isActive(true)
                 .build();
 
@@ -70,6 +77,32 @@ public class FinancialSpaceServiceImpl {
         }
 
         return mapToResponse(space, false);
+    }
+
+    @Transactional
+    public FinancialSpaceResponse joinFamilyByInviteCode(String inviteCode, Long userId) {
+        if (inviteCode == null || inviteCode.trim().isEmpty()) {
+            throw new BadRequestException("Mã mời không được để trống (FIN-NB08)");
+        }
+        FinancialSpace space = spaceRepository.findByInviteCodeAndIsActiveTrue(inviteCode.trim())
+                .orElseThrow(() -> new ResourceNotFoundException("Mã mời gia đình không hợp lệ hoặc không tồn tại (FIN-NB08)"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        // Kiểm tra đã là thành viên chưa
+        boolean alreadyMember = memberRepository.findBySpaceIdAndUserId(space.getId(), userId).isPresent();
+        if (!alreadyMember && !space.getOwner().getId().equals(userId)) {
+            FamilyMember newMember = FamilyMember.builder()
+                    .space(space)
+                    .user(user)
+                    .role(FamilyRole.MEMBER)
+                    .isActive(true)
+                    .build();
+            memberRepository.save(newMember);
+        }
+
+        return mapToResponse(space, true);
     }
 
     @Transactional
@@ -131,6 +164,30 @@ public class FinancialSpaceServiceImpl {
         memberRepository.save(member);
     }
 
+    /**
+     * FIN-NB12: A member leaves a family space on their own.
+     * The owner cannot leave — they must delete the space instead.
+     */
+    @Transactional
+    public void leaveFamily(Long spaceId, Long userId) {
+        FinancialSpace space = spaceRepository.findByIdAndIsActiveTrue(spaceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Financial space", "id", spaceId));
+
+        if (space.getType() != SpaceType.FAMILY) {
+            throw new BadRequestException("Chỉ có thể rời khỏi nhóm gia đình");
+        }
+        if (space.getOwner().getId().equals(userId)) {
+            throw new BadRequestException(
+                    "Chủ hộ không thể rời nhóm. Vui lòng xóa nhóm gia đình hoặc chuyển quyền chủ hộ (FIN-NB12)");
+        }
+
+        FamilyMember member = memberRepository.findBySpaceIdAndUserIdAndIsActiveTrue(spaceId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bạn không phải thành viên của nhóm gia đình này"));
+
+        member.setIsActive(false);
+        memberRepository.save(member);
+    }
+
     @Transactional(readOnly = true)
     public List<FamilyMemberResponse> getMembers(Long spaceId, Long userId) {
         // Check access
@@ -171,6 +228,7 @@ public class FinancialSpaceServiceImpl {
                 .currency(space.getCurrency())
                 .ownerId(space.getOwner().getId())
                 .ownerName(space.getOwner().getFullName())
+                .inviteCode(space.getInviteCode())
                 .isActive(space.getIsActive())
                 .createdAt(space.getCreatedAt());
 

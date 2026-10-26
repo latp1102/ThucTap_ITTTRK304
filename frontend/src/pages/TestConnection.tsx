@@ -1,3 +1,4 @@
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useState } from 'react';
 import axios from 'axios';
 

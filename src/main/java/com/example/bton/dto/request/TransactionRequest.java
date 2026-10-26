@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.dto.request;
 
 import com.example.bton.enums.TransactionType;
@@ -12,6 +13,10 @@ public class TransactionRequest {
 
     @NotNull(message = "Space ID is required")
     private Long spaceId;
+
+    private Long walletId;
+
+    private Long destinationWalletId;
 
     @NotNull(message = "Category ID is required")
     private Long categoryId;
@@ -32,4 +37,7 @@ public class TransactionRequest {
 
     @Size(max = 1000, message = "Note must not exceed 1000 characters")
     private String note;
+
+    @Size(max = 500, message = "Receipt URL must not exceed 500 characters")
+    private String receiptUrl;
 }

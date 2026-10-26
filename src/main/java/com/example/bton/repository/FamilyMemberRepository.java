@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.repository;
 
 import com.example.bton.entity.FamilyMember;
@@ -40,4 +41,6 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, Long
             """)
     Optional<FamilyRole> findRoleBySpaceIdAndUserId(@Param("spaceId") Long spaceId,
                                                      @Param("userId") Long userId);
+
+    Optional<FamilyMember> findBySpaceIdAndUserId(Long spaceId, Long userId);
 }

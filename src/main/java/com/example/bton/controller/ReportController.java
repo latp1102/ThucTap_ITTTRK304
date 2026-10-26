@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.controller;
 
 import com.example.bton.dto.response.DashboardResponse;
@@ -46,5 +47,21 @@ public class ReportController {
             @AuthenticationPrincipal UserPrincipal currentUser) {
         return ResponseEntity.ok(
                 reportService.getReport(spaceId, currentUser.getId(), startDate, endDate));
+    }
+
+    @GetMapping("/export-excel")
+    @Operation(summary = "Export financial transactions to Excel (.xlsx) file (UC13)")
+    public ResponseEntity<byte[]> exportExcel(
+            @RequestParam Long spaceId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        byte[] excelData = reportService.exportTransactionsToExcel(spaceId, currentUser.getId(), startDate, endDate);
+        String filename = "BaoCaoThuChi_" + LocalDate.now() + ".xlsx";
+
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                .body(excelData);
     }
 }

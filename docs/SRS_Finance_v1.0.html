@@ -1,0 +1,277 @@
+<!-- Tác giả: Nguyễn Mạnh Thắng (QA/Tester & Báo cáo) -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TÀI LIỆU ĐẶC TẢ SRS - HỆ THỐNG QUẢN LÝ THU CHI CÁ NHÂN VÀ GIA ĐÌNH</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+        }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-main);
+            background: #f8fafc;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            padding: 50px 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+        }
+        .doc-header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 25px;
+            margin-bottom: 35px;
+        }
+        .doc-header h1 {
+            color: var(--primary-dark);
+            margin: 0 0 10px 0;
+            font-size: 26px;
+            text-transform: uppercase;
+        }
+        .doc-header h2 {
+            color: var(--text-main);
+            font-size: 20px;
+            margin: 0 0 15px 0;
+            font-weight: 600;
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 35px;
+        }
+        .meta-item {
+            font-size: 14px;
+        }
+        .meta-item strong {
+            color: var(--primary-dark);
+        }
+        h2.section-title {
+            color: var(--primary-dark);
+            border-left: 4px solid var(--primary);
+            padding-left: 12px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        h3 {
+            color: #334155;
+            font-size: 16px;
+            margin-top: 25px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        table, th, td {
+            border: 1px solid var(--border);
+        }
+        th {
+            background-color: #f8fafc;
+            color: #334155;
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 14px;
+        }
+        td {
+            padding: 10px 14px;
+        }
+        tr:nth-child(even) {
+            background-color: #fdfdfe;
+        }
+        .img-container {
+            text-align: center;
+            margin: 25px 0;
+            background: #f8fafc;
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .img-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .img-caption {
+            margin-top: 10px;
+            font-size: 13px;
+            font-style: italic;
+            color: var(--text-muted);
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="doc-header">
+            <h1>Tài Liệu Đặc Tả Yêu Cầu Phần Mềm (SRS)</h1>
+            <h2>Hệ Thống Quản Lý Thu Chi Cá Nhân Và Gia Đình</h2>
+            <div style="font-size: 14px; color: var(--text-muted);">Mã tài liệu: SRS-FINANCE-SB-2026-001 | Phiên bản: 1.0</div>
+        </div>
+
+        <div class="meta-grid">
+            <div class="meta-item"><strong>Học phần:</strong> Phát triển Dự án Phần mềm / Đồ án Chuyên ngành</div>
+            <div class="meta-item"><strong>Lớp học phần:</strong> HN-KS24-CNTT1</div>
+            <div class="meta-item"><strong>Nhóm thực hiện:</strong> Nhóm 04 (4 thành viên)</div>
+            <div class="meta-item"><strong>Giảng viên hướng dẫn:</strong> ThS. Giảng viên Bùi Thanh Hải</div>
+            <div class="meta-item"><strong>Hạn nộp & Ngày nộp:</strong> 13/11/2026</div>
+            <div class="meta-item"><strong>Trạng thái:</strong> Hoàn thiện nghiệm thu đồ án</div>
+        </div>
+
+        <h2 class="section-title">1. Phân Chia Nhân Sự & Trách Nhiệm</h2>
+        <table>
+            <tr>
+                <th>STT</th>
+                <th>Thành Viên</th>
+                <th>Vai Trò Chính</th>
+                <th>Phạm Vi Trách Nhiệm Chi Tiết</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td><strong>Trần Hữu Nhật</strong></td>
+                <td>Backend & DevOps Lead</td>
+                <td>Kiến trúc hệ thống Spring Boot, JWT Security, TransactionService, Docker & Nginx Reverse Proxy.</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td><strong>Nguyễn Hoàng Phúc</strong></td>
+                <td>Frontend Lead & UI/UX</td>
+                <td>Giao diện Responsive React SPA, trực quan hóa dòng tiền (Chart.js / ApexCharts), form thu chi.</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td><strong>La Thế Phong</strong></td>
+                <td>Database & Data Lead</td>
+                <td>Thiết kế lược đồ ERD, viết init.sql chuẩn hóa, tối ưu hóa Index truy vấn báo cáo đối soát số dư.</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td><strong>Nguyễn Mạnh Thắng</strong></td>
+                <td>QA / Tester & Viết Báo Cáo</td>
+                <td>Thiết kế kịch bản kiểm thử UC01 – UC16, kiểm thử E2E số dư, theo dõi Bug Tracking và biên soạn báo cáo.</td>
+            </tr>
+        </table>
+
+        <h2 class="section-title">2. Kiến Trúc Sơ Đồ Hệ Thống</h2>
+
+        <h3>2.1 Sơ đồ Quan hệ Thực thể (ERD) - 12 Bảng</h3>
+        <div class="img-container">
+            <img src="img/erd.png" alt="ERD Diagram">
+            <div class="img-caption">Hình 1: Sơ đồ lược đồ quan hệ thực thể (ERD) chuẩn hóa 12 bảng chính</div>
+        </div>
+
+        <h3>2.2 Sơ đồ Use Case Tổng quan (UC01 - UC16)</h3>
+        <div class="img-container">
+            <img src="img/usecase.png" alt="Use Case Diagram">
+            <div class="img-caption">Hình 2: Sơ đồ Use Case tổng quan phân bổ theo 3 tác nhân chính</div>
+        </div>
+
+        <h3>2.3 Sơ đồ Luồng Nghiệp vụ Cốt lõi (Core Business Flow)</h3>
+        <div class="img-container">
+            <img src="img/flow.png" alt="Core Flow Diagram">
+            <div class="img-caption">Hình 3: Quy trình ghi nhận giao dịch, đối soát số dư ACID và cảnh báo ngân sách</div>
+        </div>
+
+        <h3>2.4 Vòng đời và Máy trạng thái (State Machine & Lifecycle)</h3>
+        <div class="img-container">
+            <img src="img/state.png" alt="State Diagram">
+            <div class="img-caption">Hình 4: Vòng đời trạng thái Giao dịch và Máy trạng thái Ngân sách</div>
+        </div>
+
+        <h3>2.5 Sơ đồ Cấu trúc Trang Web UI (Site Map)</h3>
+        <div class="img-container">
+            <img src="img/sitemap.png" alt="Site Map Diagram">
+            <div class="img-caption">Hình 5: Sơ đồ cấu trúc điều hướng các trang trong hệ thống Single Page Application</div>
+        </div>
+
+        <h2 class="section-title">3. Danh Mục 16 Use Case Tiêu Chuẩn</h2>
+        <table>
+            <tr>
+                <th>Mã UC</th>
+                <th>Tên Use Case</th>
+                <th>Phân Hệ</th>
+                <th>Tác Nhân</th>
+                <th>Độ Ưu Tiên</th>
+            </tr>
+            <tr><td>UC01</td><td>Đăng ký, Đăng nhập & Xác thực Stateless JWT</td><td>Tài khoản</td><td>Tất cả</td><td><span class="badge badge-danger">Cao nhất (P1)</span></td></tr>
+            <tr><td>UC02</td><td>Quản lý Hồ sơ cá nhân</td><td>Tài khoản</td><td>Người dùng</td><td><span class="badge badge-warning">Trung bình (P2)</span></td></tr>
+            <tr><td>UC03</td><td>Khởi tạo & Quản lý danh sách Ví tiền, Số dư</td><td>Nguồn tiền</td><td>Người dùng</td><td><span class="badge badge-danger">Cao (P1)</span></td></tr>
+            <tr><td>UC04</td><td>Chuyển tiền nội bộ giữa các ví</td><td>Nguồn tiền</td><td>Người dùng</td><td><span class="badge badge-danger">Cao (P1)</span></td></tr>
+            <tr><td>UC05</td><td>Ghi chép Giao dịch Thu/Chi (Transaction)</td><td>Sổ giao dịch</td><td>Người dùng</td><td><span class="badge badge-danger">Cao nhất (P1)</span></td></tr>
+            <tr><td>UC06</td><td>Quản lý Danh mục Thu Chi cá nhân</td><td>Phân loại</td><td>Người dùng</td><td><span class="badge badge-warning">Trung bình (P2)</span></td></tr>
+            <tr><td>UC07</td><td>Thiết lập Hạn mức Ngân sách & Cảnh báo vượt chi</td><td>Ngân sách</td><td>Người dùng, Chủ hộ</td><td><span class="badge badge-warning">Trung bình (P2)</span></td></tr>
+            <tr><td>UC08</td><td>Khởi tạo Nhóm Gia đình & Sinh mã mời (Invite Code)</td><td>Gia đình</td><td>Chủ hộ (Owner)</td><td><span class="badge badge-danger">Cao (P1)</span></td></tr>
+            <tr><td>UC09</td><td>Nhập mã mời để Tham gia Gia đình</td><td>Gia đình</td><td>Người dùng</td><td><span class="badge badge-danger">Cao (P1)</span></td></tr>
+            <tr><td>UC10</td><td>Quản lý Ví chung & Thu chi Gia đình</td><td>Gia đình</td><td>Thành viên</td><td><span class="badge badge-danger">Cao (P1)</span></td></tr>
+            <tr><td>UC11</td><td>Phân quyền & Quản lý thành viên Gia đình</td><td>Gia đình</td><td>Chủ hộ (Owner)</td><td><span class="badge badge-warning">Trung bình (P2)</span></td></tr>
+            <tr><td>UC12</td><td>Báo cáo Dòng tiền & Biểu đồ Cơ cấu Chi</td><td>Báo cáo</td><td>Người dùng, Thành viên</td><td><span class="badge badge-danger">Cao (P1)</span></td></tr>
+            <tr><td>UC13</td><td>Xuất Báo cáo Thu Chi sang tệp Excel (.xlsx)</td><td>Báo cáo</td><td>Người dùng, Chủ hộ</td><td><span class="badge badge-warning">Trung bình (P2)</span></td></tr>
+            <tr><td>UC14</td><td>Bảng điều khiển Quản trị hệ thống (Admin Dashboard)</td><td>Quản trị</td><td>Quản trị viên</td><td><span class="badge badge-danger">Cao (P1)</span></td></tr>
+            <tr><td>UC15</td><td>Quản lý Người dùng hệ thống (Khóa / Mở)</td><td>Quản trị</td><td>Quản trị viên</td><td><span class="badge badge-danger">Cao (P1)</span></td></tr>
+            <tr><td>UC16</td><td>Quản lý Danh mục Thu Chi mặc định toàn hệ thống</td><td>Quản trị</td><td>Quản trị viên</td><td><span class="badge badge-warning">Trung bình (P2)</span></td></tr>
+        </table>
+
+        <h2 class="section-title">4. Hệ Thống Thông Báo & Cảnh Báo (FIN-NB)</h2>
+        <table>
+            <tr>
+                <th>Mã Thông Báo</th>
+                <th>Phân Loại</th>
+                <th>Nội Dung Hiển Thị Mẫu</th>
+                <th>Ngữ Cảnh Phát Sinh</th>
+            </tr>
+            <tr><td>FIN-NB01</td><td><span class="badge badge-success">Thành công</span></td><td>Đăng ký tài khoản thành công. Chào mừng bạn đến với hệ thống!</td><td>Sau khi hoàn tất UC01</td></tr>
+            <tr><td>FIN-NB02</td><td><span class="badge badge-success">Thành công</span></td><td>Đã ghi nhận giao dịch vào ví tiền thành công.</td><td>Sau khi lưu UC05</td></tr>
+            <tr><td>FIN-NB03</td><td><span class="badge badge-success">Thành công</span></td><td>Chuyển tiền nội bộ giữa các ví thành công.</td><td>Sau khi hoàn thành UC04</td></tr>
+            <tr><td>FIN-NB04</td><td><span class="badge badge-success">Thành công</span></td><td>Tạo nhóm gia đình thành công. Mã mời: {invite_code}</td><td>Sau khi hoàn thành UC08</td></tr>
+            <tr><td>FIN-NB05</td><td><span class="badge badge-warning">Cảnh báo</span></td><td>Chú ý: Danh mục đã chi tiêu đạt 80% hạn mức ngân sách tháng!</td><td>Khi chi tiêu chạm 80% (UC07)</td></tr>
+            <tr><td>FIN-NB06</td><td><span class="badge badge-danger">Bội chi</span></td><td>Cảnh báo bội chi: Bạn đã vượt quá 100% ngân sách đề ra!</td><td>Khi chi tiêu vượt 100% (UC07)</td></tr>
+            <tr><td>FIN-NB07</td><td><span class="badge badge-warning">Cảnh báo</span></td><td>Số dư khả dụng trong ví không đủ để thực hiện khoản chi này.</td><td>Chi tiêu vượt số dư ví tiền mặt</td></tr>
+            <tr><td>FIN-NB08</td><td><span class="badge badge-danger">Lỗi</span></td><td>Mã mời gia đình không hợp lệ hoặc đã hết hạn sử dụng.</td><td>Tham gia nhóm thất bại (UC09)</td></tr>
+            <tr><td>FIN-NB09</td><td><span class="badge badge-danger">Lỗi</span></td><td>Không thể xóa ví đã phát sinh dữ liệu giao dịch kế toán.</td><td>Ràng buộc toàn vẹn số liệu (UC03)</td></tr>
+            <tr><td>FIN-NB10</td><td><span class="badge badge-danger">Lỗi</span></td><td>Email này đã được sử dụng. Vui lòng chọn email khác.</td><td>Đăng ký trùng email (UC01)</td></tr>
+            <tr><td>FIN-NB11</td><td><span class="badge badge-danger">Lỗi</span></td><td>Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.</td><td>Token JWT không hợp lệ</td></tr>
+            <tr><td>FIN-NB12</td><td><span class="badge badge-warning">Xác nhận</span></td><td>Bạn có chắc chắn muốn rời khỏi nhóm gia đình này không?</td><td>Xác nhận hủy tham gia (UC11)</td></tr>
+        </table>
+
+        <div style="text-align: center; margin-top: 40px; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 20px;">
+            Đồ án Chuyên ngành / Phát triển Dự án Phần mềm - Nhóm 04 (Lớp HN-KS24-CNTT1) - GVHD: ThS. Bùi Thanh Hải
+        </div>
+    </div>
+</body>
+</html>

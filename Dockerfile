@@ -1,3 +1,4 @@
+# Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 # ============================================================
 # Dockerfile — Backend (Spring Boot 3 / Java 21)
 # Multi-stage build: builder → runtime

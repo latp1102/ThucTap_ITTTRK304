@@ -1,3 +1,4 @@
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { Outlet } from 'react-router-dom';
 
 export default function AuthLayout() {

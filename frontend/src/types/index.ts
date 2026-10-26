@@ -1,16 +1,26 @@
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 export interface User {
   id: number;
   username: string;
   email: string;
   fullName: string;
+  phone?: string;
+  avatarUrl?: string;
   role: 'USER' | 'ADMIN';
   isActive: boolean;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface AuthResponse {
-  token: string;
-  user: User;
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  userId: number;
+  username: string;
+  email: string;
+  fullName: string;
+  role: 'USER' | 'ADMIN';
 }
 
 export interface LoginRequest {
@@ -23,113 +33,181 @@ export interface RegisterRequest {
   email: string;
   password: string;
   fullName: string;
+  phone?: string;
+}
+
+export interface FamilyMember {
+  id: number;
+  userId: number;
+  username: string;
+  fullName: string;
+  email: string;
+  avatarUrl?: string;
+  role: 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
+  joinedAt?: string;
+  isActive: boolean;
 }
 
 export interface FinancialSpace {
   id: number;
   name: string;
-  type: 'PERSONAL' | 'FAMILY';
   description?: string;
-  balance: number;
-  memberCount?: number;
+  type: 'PERSONAL' | 'FAMILY';
+  currency?: string;
+  ownerId: number;
+  ownerName?: string;
+  inviteCode?: string;
   isActive: boolean;
-  createdAt: string;
+  createdAt?: string;
+  members?: FamilyMember[];
 }
 
 export interface Category {
   id: number;
   name: string;
-  type: 'INCOME' | 'EXPENSE';
+  nameVi?: string;
+  type: 'INCOME' | 'EXPENSE' | 'BOTH';
   icon?: string;
   color?: string;
   isSystem: boolean;
+  displayOrder?: number;
+  isActive?: boolean;
+}
+
+export interface Wallet {
+  id: number;
+  userId: number;
+  spaceId?: number;
+  name: string;
+  walletType: 'CASH' | 'BANK' | 'E_WALLET';
+  currency: string;
+  balance: number;
+  isShared: boolean;
   isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Transaction {
   id: number;
   spaceId: number;
-  spaceName: string;
-  categoryId: number;
-  categoryName: string;
-  categoryIcon?: string;
-  type: 'INCOME' | 'EXPENSE';
+  spaceName?: string;
+  userId: number;
+  userName?: string;
+  category?: Category | null;
+  type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
   amount: number;
   description?: string;
   transactionDate: string;
-  createdBy: string;
-  createdAt: string;
+  note?: string;
+  receiptUrl?: string;
+  walletName?: string;
+  walletType?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Budget {
   id: number;
   spaceId: number;
-  categoryId: number;
-  categoryName: string;
-  categoryIcon?: string;
+  category?: Category | null;
   amount: number;
-  spent: number;
   month: number;
   year: number;
-  percentUsed: number;
+  warningThreshold: number;
+  spent: number;
+  remaining: number;
+  usagePercentage: number;
+  status: 'NORMAL' | 'WARNING' | 'EXCEEDED';
 }
 
 export interface SavingsGoal {
   id: number;
   spaceId: number;
   name: string;
+  description?: string;
   targetAmount: number;
   currentAmount: number;
-  targetDate: string;
-  status: 'IN_PROGRESS' | 'ACHIEVED' | 'CANCELLED';
-  progress: number;
-  description?: string;
+  startDate?: string;
+  deadline?: string;
+  status: 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  icon?: string;
+  color?: string;
+  progressPercentage: number;
+  remainingAmount: number;
+}
+
+export interface CategoryExpense {
+  categoryId: number;
+  categoryName: string;
+  categoryNameVi?: string;
+  color?: string;
+  icon?: string;
+  amount: number;
+  percentage: number;
 }
 
 export interface DashboardResponse {
-  totalBalance: number;
-  monthIncome: number;
-  monthExpense: number;
-  monthSavings: number;
-  incomeChange: number;
-  expenseChange: number;
-  categoryExpenses: Array<{
-    categoryName: string;
-    categoryIcon?: string;
-    amount: number;
-    percentage: number;
-  }>;
-  dailyExpenses: Array<{
-    date: string;
-    amount: number;
-  }>;
+  month: number;
+  year: number;
+  totalIncome: number;
+  totalExpense: number;
+  balance: number;
+  expenseByCategory: CategoryExpense[];
+  budgets: Budget[];
+  budgetWarnings: Budget[];
+  savingsGoals: SavingsGoal[];
   recentTransactions: Transaction[];
-  budgetAlerts: Array<{
-    categoryName: string;
-    spent: number;
-    budget: number;
-    percentUsed: number;
+}
+
+export interface ReportData {
+  monthlySummaries: Array<{
+    year: number;
+    month: number;
+    income: number;
+    expense: number;
+    balance: number;
   }>;
+  trends: Array<{
+    label: string;
+    income: number;
+    expense: number;
+    balance: number;
+  }>;
+  expenseByCategory: CategoryExpense[];
+  incomeByCategory: CategoryExpense[];
+  totalIncome: number;
+  totalExpense: number;
+  totalBalance: number;
 }
 
 export interface PageResponse<T> {
   content: T[];
-  page: number;
-  size: number;
+  pageNumber: number;
+  pageSize: number;
   totalElements: number;
   totalPages: number;
+  first: boolean;
+  last: boolean;
 }
 
 export interface AdminDashboard {
   totalUsers: number;
   activeUsers: number;
-  totalTransactions: number;
-  totalRevenue: number;
-  userGrowth: number;
-  transactionGrowth: number;
-  recentUsers: User[];
-  usersByMonth: Array<{
-    month: string;
+  totalSpaces: number;
+  familySpaces: number;
+  totalTransactionsThisMonth: number;
+  newUsersThisMonth: number;
+  userRegistrationTrend: Array<{
+    year: number;
+    month: number;
+    label: string;
+    count: number;
+  }>;
+  transactionTrend: Array<{
+    year: number;
+    month: number;
+    label: string;
     count: number;
   }>;
 }
@@ -137,19 +215,22 @@ export interface AdminDashboard {
 export interface AuditLog {
   id: number;
   adminId: number;
-  adminName: string;
+  adminUsername: string;
+  adminFullName: string;
   action: string;
-  entityType: string;
-  entityId: number;
-  details: string;
+  targetType?: string;
+  targetId?: number;
+  description?: string;
+  ipAddress?: string;
   createdAt: string;
 }
 
-export interface Notification {
+export interface NotificationItem {
   id: number;
-  type: 'BUDGET_ALERT' | 'GOAL_ACHIEVED' | 'TRANSACTION' | 'SYSTEM';
   title: string;
   message: string;
+  type: string;
+  relatedId?: number;
   isRead: boolean;
   createdAt: string;
 }

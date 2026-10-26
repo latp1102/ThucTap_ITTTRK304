@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.dto.response;
 
 import com.example.bton.enums.SpaceType;
@@ -17,6 +18,7 @@ public class FinancialSpaceResponse {
     private String currency;
     private Long ownerId;
     private String ownerName;
+    private String inviteCode;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private List<FamilyMemberResponse> members;

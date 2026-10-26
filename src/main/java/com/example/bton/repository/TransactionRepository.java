@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.repository;
 
 import com.example.bton.entity.Transaction;
@@ -18,10 +19,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("""
             SELECT t FROM Transaction t
-            JOIN FETCH t.category
+            LEFT JOIN FETCH t.category
             WHERE t.space.id = :spaceId
+            AND t.isDeleted = false
             AND (:type IS NULL OR t.type = :type)
             AND (:categoryId IS NULL OR t.category.id = :categoryId)
+            AND (:walletId IS NULL OR t.wallet.id = :walletId)
             AND (:startDate IS NULL OR t.transactionDate >= :startDate)
             AND (:endDate IS NULL OR t.transactionDate <= :endDate)
             AND (:keyword IS NULL OR LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%')))
@@ -31,6 +34,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("spaceId") Long spaceId,
             @Param("type") TransactionType type,
             @Param("categoryId") Long categoryId,
+            @Param("walletId") Long walletId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param("keyword") String keyword,
@@ -41,6 +45,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             FROM Transaction t
             WHERE t.space.id = :spaceId
             AND t.type = :type
+            AND t.isDeleted = false
             AND YEAR(t.transactionDate) = :year
             AND MONTH(t.transactionDate) = :month
             """)
@@ -54,6 +59,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             FROM Transaction t
             WHERE t.space.id = :spaceId
             AND t.type = 'EXPENSE'
+            AND t.isDeleted = false
             AND t.category.id = :categoryId
             AND YEAR(t.transactionDate) = :year
             AND MONTH(t.transactionDate) = :month
@@ -65,8 +71,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("""
             SELECT t FROM Transaction t
-            JOIN FETCH t.category
+            LEFT JOIN FETCH t.category
             WHERE t.space.id = :spaceId
+            AND t.isDeleted = false
             ORDER BY t.transactionDate DESC, t.createdAt DESC
             """)
     List<Transaction> findRecentBySpace(@Param("spaceId") Long spaceId, Pageable pageable);
@@ -77,6 +84,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             FROM Transaction t
             WHERE t.space.id = :spaceId
             AND t.type = 'EXPENSE'
+            AND t.isDeleted = false
             AND YEAR(t.transactionDate) = :year
             AND MONTH(t.transactionDate) = :month
             GROUP BY t.category.id, t.category.name, t.category.nameVi, t.category.color, t.category.icon
@@ -92,6 +100,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
                    COALESCE(SUM(CASE WHEN t.type = 'EXPENSE' THEN t.amount ELSE 0 END), 0)
             FROM Transaction t
             WHERE t.space.id = :spaceId
+            AND t.isDeleted = false
             AND t.transactionDate BETWEEN :startDate AND :endDate
             GROUP BY YEAR(t.transactionDate), MONTH(t.transactionDate)
             ORDER BY YEAR(t.transactionDate), MONTH(t.transactionDate)
@@ -104,6 +113,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     long countByDateRange(@Param("startDate") LocalDate startDate,
                           @Param("endDate") LocalDate endDate);
 
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.wallet.id = :walletId AND t.isDeleted = false")
+    long countByWalletId(@Param("walletId") Long walletId);
+
     @Query("""
             SELECT YEAR(t.transactionDate), MONTH(t.transactionDate), COUNT(t)
             FROM Transaction t
@@ -112,4 +124,19 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             ORDER BY YEAR(t.transactionDate), MONTH(t.transactionDate)
             """)
     List<Object[]> countTransactionsByMonth(@Param("since") LocalDate since);
+
+    @Query("""
+            SELECT t FROM Transaction t
+            LEFT JOIN FETCH t.category
+            JOIN FETCH t.user
+            WHERE t.space.id = :spaceId
+            AND t.isDeleted = false
+            AND (:startDate IS NULL OR t.transactionDate >= :startDate)
+            AND (:endDate IS NULL OR t.transactionDate <= :endDate)
+            ORDER BY t.transactionDate DESC, t.createdAt DESC
+            """)
+    List<Transaction> findForExport(
+            @Param("spaceId") Long spaceId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 }

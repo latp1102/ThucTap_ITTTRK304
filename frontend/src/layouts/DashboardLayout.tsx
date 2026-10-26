@@ -1,4 +1,5 @@
-import { useState } from 'react';
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
+import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -8,7 +9,6 @@ import {
   BarChart3,
   Settings,
   Bell,
-  Search,
   ChevronDown,
   LogOut,
   Users,
@@ -16,30 +16,101 @@ import {
   FileText,
   Menu,
   X,
+  Tags,
+  Home,
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useSpaceStore } from '../store/spaceStore';
+import api from '../lib/axios';
+import { FinancialSpace, NotificationItem, PageResponse } from '../types';
+import { formatDateTime } from '../lib/utils';
 
 export default function DashboardLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
-  const { currentSpace, spaces } = useSpaceStore();
+  const { currentSpace, spaces, setSpaces, setCurrentSpace } = useSpaceStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showSpaceMenu, setShowSpaceMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const handleLogout = () => {
+  // Load accessible spaces from API and auto-select the first one
+  useEffect(() => {
+    const loadSpaces = async () => {
+      try {
+        const { data } = await api.get<FinancialSpace[]>('/spaces');
+        setSpaces(data);
+        const store = useSpaceStore.getState();
+        const stillValid = store.currentSpace
+          ? data.find((s) => s.id === store.currentSpace!.id)
+          : null;
+        if (!stillValid && data.length > 0) {
+          setCurrentSpace(data[0]);
+        } else if (stillValid) {
+          setCurrentSpace(stillValid);
+        }
+      } catch {
+        // stay silent — pages show "select a space" hint
+      }
+    };
+    loadSpaces();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Load notifications
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        const [listRes, countRes] = await Promise.all([
+          api.get<PageResponse<NotificationItem>>('/notifications?page=0&size=10'),
+          api.get<{ count: number }>('/notifications/unread-count'),
+        ]);
+        setNotifications(listRes.data.content);
+        setUnreadCount(countRes.data.count);
+      } catch {
+        // ignore
+      }
+    };
+    loadNotifications();
+    const interval = setInterval(loadNotifications, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleLogout = async () => {
+    const refreshToken = useAuthStore.getState().refreshToken;
+    try {
+      if (refreshToken) {
+        await api.post('/auth/logout', { refreshToken });
+      }
+    } catch {
+      // ignore — logout locally regardless
+    }
     logout();
     navigate('/login');
   };
 
+  const handleMarkAllRead = async () => {
+    try {
+      await api.patch('/notifications/read-all');
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+    } catch {
+      // ignore
+    }
+  };
+
   const userNavItems = [
-    { path: '/', label: 'Overview', icon: LayoutDashboard },
-    { path: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
-    { path: '/budget', label: 'Budget', icon: Wallet },
-    { path: '/goals', label: 'Goals', icon: Target },
-    { path: '/reports', label: 'Insight', icon: BarChart3 },
+    { path: '/', label: 'Tổng quan', icon: LayoutDashboard },
+    { path: '/transactions', label: 'Giao dịch', icon: ArrowLeftRight },
+    { path: '/wallets', label: 'Ví tiền', icon: Wallet },
+    { path: '/budget', label: 'Ngân sách', icon: BarChart3 },
+    { path: '/goals', label: 'Mục tiêu', icon: Target },
+    { path: '/family', label: 'Gia đình', icon: Home },
+    { path: '/categories', label: 'Danh mục', icon: Tags },
+    { path: '/reports', label: 'Báo cáo', icon: BarChart3 },
   ];
 
   const adminNavItems = [
@@ -125,14 +196,14 @@ export default function DashboardLayout() {
               `}
             >
               <Settings className="w-5 h-5" />
-              <span className="font-medium">Settings</span>
+              <span className="font-medium">Cài đặt</span>
             </Link>
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-3 py-2.5 mt-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
             >
               <LogOut className="w-5 h-5" />
-              <span className="font-medium">Log out</span>
+              <span className="font-medium">Đăng xuất</span>
             </button>
           </div>
         </div>
@@ -158,28 +229,18 @@ export default function DashboardLayout() {
               >
                 <Menu className="w-6 h-6" />
               </button>
-
-              {/* Search */}
-              <div className="hidden md:flex items-center gap-2 bg-gray-100 rounded-lg px-4 py-2 w-80">
-                <Search className="w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search for transaction amount or name"
-                  className="bg-transparent border-none outline-none text-sm flex-1"
-                />
-              </div>
             </div>
 
             <div className="flex items-center gap-4">
               {/* Space Selector */}
-              {currentSpace && !location.pathname.startsWith('/admin') && (
+              {spaces.length > 0 && !location.pathname.startsWith('/admin') && (
                 <div className="relative">
                   <button
                     onClick={() => setShowSpaceMenu(!showSpaceMenu)}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
                   >
                     <Wallet className="w-4 h-4 text-gray-600" />
-                    <span className="text-sm font-medium">{currentSpace.name}</span>
+                    <span className="text-sm font-medium">{currentSpace?.name || 'Chọn không gian'}</span>
                     <ChevronDown className="w-4 h-4 text-gray-400" />
                   </button>
                   {showSpaceMenu && (
@@ -188,7 +249,7 @@ export default function DashboardLayout() {
                         <button
                           key={space.id}
                           onClick={() => {
-                            useSpaceStore.getState().setCurrentSpace(space);
+                            setCurrentSpace(space);
                             setShowSpaceMenu(false);
                           }}
                           className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"
@@ -196,7 +257,9 @@ export default function DashboardLayout() {
                           <Wallet className="w-4 h-4 text-gray-600" />
                           <div className="text-left">
                             <div className="text-sm font-medium">{space.name}</div>
-                            <div className="text-xs text-gray-500">{space.type}</div>
+                            <div className="text-xs text-gray-500">
+                              {space.type === 'FAMILY' ? 'Gia đình' : 'Cá nhân'}
+                            </div>
                           </div>
                         </button>
                       ))}
@@ -206,10 +269,51 @@ export default function DashboardLayout() {
               )}
 
               {/* Notifications */}
-              <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                <Bell className="w-5 h-5 text-gray-600" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full" />
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <Bell className="w-5 h-5 text-gray-600" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-danger rounded-full text-white text-[10px] font-bold flex items-center justify-center">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                      <span className="font-semibold text-gray-900">Thông báo</span>
+                      <button
+                        onClick={handleMarkAllRead}
+                        className="text-xs text-primary hover:text-primary-dark"
+                      >
+                        Đánh dấu đã đọc
+                      </button>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <p className="text-sm text-gray-500 text-center py-8">Không có thông báo</p>
+                      ) : (
+                        notifications.map((n) => (
+                          <div
+                            key={n.id}
+                            className={`px-4 py-3 border-b border-gray-50 ${n.isRead ? '' : 'bg-primary/5'}`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <span className="text-sm font-medium text-gray-900">{n.title}</span>
+                              {!n.isRead && <span className="w-2 h-2 bg-primary rounded-full mt-1.5 shrink-0" />}
+                            </div>
+                            <p className="text-xs text-gray-600 mt-1">{n.message}</p>
+                            <p className="text-[11px] text-gray-400 mt-1">{formatDateTime(n.createdAt)}</p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* User Menu */}
               <div className="relative">
@@ -243,7 +347,7 @@ export default function DashboardLayout() {
                       className="flex items-center gap-2 px-4 py-2.5 hover:bg-gray-50 text-sm"
                     >
                       <Settings className="w-4 h-4" />
-                      Settings
+                      Cài đặt
                     </Link>
                     <button
                       onClick={() => {
@@ -253,7 +357,7 @@ export default function DashboardLayout() {
                       className="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-gray-50 text-sm text-danger"
                     >
                       <LogOut className="w-4 h-4" />
-                      Logout
+                      Đăng xuất
                     </button>
                   </div>
                 )}
@@ -263,7 +367,11 @@ export default function DashboardLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-8" onClick={() => {
+          setShowNotifications(false);
+          setShowSpaceMenu(false);
+          setShowUserMenu(false);
+        }}>
           <Outlet />
         </main>
       </div>

@@ -1,3 +1,4 @@
+# Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 #!/usr/bin/env bash
 # ============================================================
 # backup.sh — MySQL Backup Script for BTON

@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.dto.response;
 
 import com.example.bton.enums.TransactionType;
@@ -22,6 +23,9 @@ public class TransactionResponse {
     private String description;
     private LocalDate transactionDate;
     private String note;
+    private String walletName;
+    private String walletType;
+    private String receiptUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -1,3 +1,4 @@
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 // Validation utility functions
 
 export const validateEmail = (email: string): string => {

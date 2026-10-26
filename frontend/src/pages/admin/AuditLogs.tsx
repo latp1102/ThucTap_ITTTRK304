@@ -1,3 +1,4 @@
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useEffect, useState } from 'react';
 import { Filter } from 'lucide-react';
 import api from '../../lib/axios';
@@ -113,10 +114,10 @@ export default function AuditLogs() {
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-medium">
-                            {log.adminName.charAt(0)}
+                            {log.adminFullName?.charAt(0) || log.adminUsername?.charAt(0) || 'A'}
                           </div>
                           <span className="text-sm font-medium text-gray-900">
-                            {log.adminName}
+                            {log.adminFullName || log.adminUsername}
                           </span>
                         </div>
                       </td>
@@ -126,10 +127,10 @@ export default function AuditLogs() {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-sm text-gray-600">
-                        {log.entityType}
+                        {log.targetType}
                       </td>
                       <td className="py-3 px-4 text-sm text-gray-600 max-w-md truncate">
-                        {log.details}
+                        {log.description}
                       </td>
                       <td className="py-3 px-4 text-sm text-gray-600">
                         {formatDateTime(log.createdAt)}
@@ -151,7 +152,7 @@ export default function AuditLogs() {
                     onClick={() =>
                       setFilters({ ...filters, page: Math.max(0, filters.page - 1) })
                     }
-                    disabled={logs.page === 0}
+                    disabled={logs.pageNumber === 0}
                     className="btn btn-secondary disabled:opacity-50"
                   >
                     Trước
@@ -163,7 +164,7 @@ export default function AuditLogs() {
                         page: Math.min(logs.totalPages - 1, filters.page + 1),
                       })
                     }
-                    disabled={logs.page >= logs.totalPages - 1}
+                    disabled={logs.pageNumber >= logs.totalPages - 1}
                     className="btn btn-secondary disabled:opacity-50"
                   >
                     Sau

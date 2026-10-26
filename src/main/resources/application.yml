@@ -1,3 +1,4 @@
+# Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 spring:
   application:
     name: BTON - Personal Finance Management System
@@ -38,7 +39,7 @@ server:
 app:
   jwt:
     secret: ${JWT_SECRET:bton-super-secret-key-for-jwt-signing-must-be-at-least-256-bits-long-in-production}
-    expiration: 86400000  # 24 hours in ms
+    expiration: 3600000  # 60 minutes in ms (SRS UC01)
     refresh-expiration: 604800000  # 7 days in ms
 
 springdoc:

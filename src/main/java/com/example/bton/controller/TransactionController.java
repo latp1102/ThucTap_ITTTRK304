@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.controller;
 
 import com.example.bton.dto.request.TransactionRequest;
@@ -34,6 +35,7 @@ public class TransactionController {
             @RequestParam Long spaceId,
             @RequestParam(required = false) TransactionType type,
             @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Long walletId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) String keyword,
@@ -41,7 +43,7 @@ public class TransactionController {
             @RequestParam(defaultValue = "20") int size,
             @AuthenticationPrincipal UserPrincipal currentUser) {
         return ResponseEntity.ok(transactionService.getTransactions(
-                spaceId, currentUser.getId(), type, categoryId,
+                spaceId, currentUser.getId(), type, categoryId, walletId,
                 startDate, endDate, keyword, page, size));
     }
 

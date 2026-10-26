@@ -1,13 +1,75 @@
-import { useState } from 'react';
-import { User, Lock, Bell, Wallet, Save } from 'lucide-react';
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
+import { useEffect, useState } from 'react';
+import { User, Lock, Wallet, Save, Plus, Home } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { useSpaceStore } from '../../store/spaceStore';
 import api from '../../lib/axios';
+import { FinancialSpace } from '../../types';
+import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
 export default function Settings() {
   const { user, updateUser } = useAuthStore();
+  const { setSpaces, setCurrentSpace, currentSpace } = useSpaceStore();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'spaces'>('profile');
+  const [spaces, setLocalSpaces] = useState<FinancialSpace[]>([]);
+  const [showCreateSpace, setShowCreateSpace] = useState(false);
+  const [spaceForm, setSpaceForm] = useState({ name: '', description: '' });
+  const [creatingSpace, setCreatingSpace] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'spaces') fetchSpaces();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
+  const fetchSpaces = async () => {
+    try {
+      const { data } = await api.get<FinancialSpace[]>('/spaces');
+      setLocalSpaces(data);
+      setSpaces(data);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleCreateSpace = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!spaceForm.name.trim()) {
+      toast.error('Vui lòng nhập tên không gian');
+      return;
+    }
+    setCreatingSpace(true);
+    try {
+      const { data } = await api.post<FinancialSpace>('/spaces', {
+        name: spaceForm.name,
+        description: spaceForm.description,
+        type: 'PERSONAL',
+        currency: 'VND',
+      });
+      toast.success('Đã tạo không gian');
+      setShowCreateSpace(false);
+      setSpaceForm({ name: '', description: '' });
+      fetchSpaces();
+      setCurrentSpace(data);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Không thể tạo không gian');
+    } finally {
+      setCreatingSpace(false);
+    }
+  };
+
+  const handleDeleteSpace = async (space: FinancialSpace) => {
+    if (!confirm(`Xóa (vô hiệu hóa) "${space.name}"?`)) return;
+    try {
+      await api.delete(`/spaces/${space.id}`);
+      toast.success('Đã xóa không gian');
+      fetchSpaces();
+      if (currentSpace?.id === space.id) setCurrentSpace(null as any);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Không thể xóa');
+    }
+  };
 
   const [profileData, setProfileData] = useState({
     fullName: user?.fullName || '',
@@ -312,16 +374,104 @@ export default function Settings() {
 
           {activeTab === 'spaces' && (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Không gian tài chính
-              </h2>
-              <p className="text-gray-600">
-                Quản lý các không gian tài chính của bạn (Coming soon)
-              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">Không gian tài chính</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Quản lý các không gian tài chính của bạn
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowCreateSpace(true)}
+                  className="btn btn-primary flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Tạo không gian
+                </button>
+              </div>
+              <div className="space-y-3">
+                {spaces.map((space) => (
+                  <div
+                    key={space.id}
+                    className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Home className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">{space.name}</div>
+                      <div className="text-xs text-gray-500">
+                        {space.type === 'FAMILY' ? 'Gia đình' : 'Cá nhân'} ·{' '}
+                        {space.currency || 'VND'}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setCurrentSpace(space);
+                        toast.success(`Đã chọn "${space.name}"`);
+                      }}
+                      className="text-sm text-primary hover:text-primary-dark"
+                    >
+                      Chọn
+                    </button>
+                    <button
+                      onClick={() => handleDeleteSpace(space)}
+                      className="text-sm text-danger hover:text-danger-dark"
+                    >
+                      Xóa
+                    </button>
+                  </div>
+                ))}
+                {spaces.length === 0 && (
+                  <p className="text-sm text-gray-500 text-center py-6">Chưa có không gian nào</p>
+                )}
+              </div>
             </div>
           )}
         </div>
       </div>
+
+      <Modal
+        open={showCreateSpace}
+        onClose={() => setShowCreateSpace(false)}
+        title="Tạo không gian tài chính"
+      >
+        <form onSubmit={handleCreateSpace} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tên *</label>
+            <input
+              type="text"
+              value={spaceForm.name}
+              onChange={(e) => setSpaceForm({ ...spaceForm, name: e.target.value })}
+              className="input"
+              placeholder="Chi tiêu cá nhân"
+              maxLength={100}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả</label>
+            <textarea
+              value={spaceForm.description}
+              onChange={(e) => setSpaceForm({ ...spaceForm, description: e.target.value })}
+              className="input"
+              rows={2}
+              maxLength={500}
+            />
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="submit" disabled={creatingSpace} className="btn btn-primary flex-1">
+              {creatingSpace ? 'Đang tạo...' : 'Tạo'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowCreateSpace(false)}
+              className="btn btn-secondary flex-1"
+            >
+              Hủy
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

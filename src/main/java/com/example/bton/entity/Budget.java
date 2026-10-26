@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.entity;
 
 import jakarta.persistence.*;
@@ -39,10 +40,10 @@ public class Budget {
     private BigDecimal amount;
 
     @Column(name = "budget_month", nullable = false)
-    private Integer month;
+    private Integer budgetMonth;
 
     @Column(name = "budget_year", nullable = false)
-    private Integer year;
+    private Integer budgetYear;
 
     @Column(name = "warning_threshold", nullable = false, precision = 5, scale = 2)
     @Builder.Default

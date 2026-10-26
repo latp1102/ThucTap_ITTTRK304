@@ -1,5 +1,6 @@
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, ToggleLeft, ToggleRight } from 'lucide-react';
 import api from '../../lib/axios';
 import { Category } from '../../types';
 import toast from 'react-hot-toast';

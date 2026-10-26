@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.repository;
 
 import com.example.bton.entity.Category;
@@ -37,4 +38,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByUserIdAndIsActiveTrue(Long userId);
 
     boolean existsByNameAndUserIdAndIsActiveTrue(String name, Long userId);
+
+    java.util.Optional<Category> findFirstByNameAndTypeAndIsSystemTrueAndIsActiveTrue(
+            String name, CategoryType type);
 }

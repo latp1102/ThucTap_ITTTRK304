@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.repository;
 
 import com.example.bton.entity.FinancialSpace;
@@ -42,4 +43,8 @@ public interface FinancialSpaceRepository extends JpaRepository<FinancialSpace, 
     Page<FinancialSpace> findAll(Pageable pageable);
 
     long countByType(SpaceType type);
+
+    Optional<FinancialSpace> findByInviteCodeAndIsActiveTrue(String inviteCode);
+
+    Optional<FinancialSpace> findFirstByOwnerIdAndTypeAndIsActiveTrue(Long ownerId, SpaceType type);
 }

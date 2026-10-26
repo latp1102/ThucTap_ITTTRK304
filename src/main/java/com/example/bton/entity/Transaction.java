@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.entity;
 
 import com.example.bton.enums.TransactionType;
@@ -34,7 +35,7 @@ public class Transaction {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @Enumerated(EnumType.STRING)
@@ -52,6 +53,21 @@ public class Transaction {
 
     @Column(columnDefinition = "TEXT")
     private String note;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "wallet_id")
+    private Wallet wallet;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "destination_wallet_id")
+    private Wallet destinationWallet;
+
+    @Column(name = "receipt_url", length = 500)
+    private String receiptUrl;
+
+    @Column(name = "is_deleted", nullable = false)
+    @Builder.Default
+    private Boolean isDeleted = false;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

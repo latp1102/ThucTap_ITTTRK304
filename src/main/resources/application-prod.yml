@@ -1,3 +1,4 @@
+# Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 # ============================================================
 # application-prod.yml — Production Profile
 # Activated via: SPRING_PROFILES_ACTIVE=prod
@@ -56,7 +57,8 @@ server:
 app:
   jwt:
     secret: ${JWT_SECRET}
-    expiration: ${JWT_EXPIRATION:86400000}
+    expiration: ${JWT_EXPIRATION:3600000}
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
 
 # Expose only health endpoint publicly (matches SecurityConfig)
 management:

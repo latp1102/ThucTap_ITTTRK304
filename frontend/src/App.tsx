@@ -1,3 +1,4 @@
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './store/authStore';
@@ -13,8 +14,11 @@ import Register from './pages/auth/Register';
 // User Pages
 import Overview from './pages/user/Overview';
 import Transactions from './pages/user/Transactions';
+import Wallets from './pages/user/Wallets';
 import Budget from './pages/user/Budget';
 import Goals from './pages/user/Goals';
+import Family from './pages/user/Family';
+import Categories from './pages/user/Categories';
 import Reports from './pages/user/Reports';
 import Settings from './pages/user/Settings';
 
@@ -23,9 +27,6 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminUsers from './pages/admin/Users';
 import AdminCategories from './pages/admin/Categories';
 import AdminAuditLogs from './pages/admin/AuditLogs';
-
-// Test Page
-import TestConnection from './pages/TestConnection';
 
 function App() {
   const { isAuthenticated, user } = useAuthStore();
@@ -40,16 +41,16 @@ function App() {
             <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
           </Route>
 
-          {/* Test Route (For Debugging) */}
-          <Route path="/test" element={<TestConnection />} />
-
           {/* Protected Routes */}
           <Route element={isAuthenticated ? <DashboardLayout /> : <Navigate to="/login" />}>
             {/* User Routes */}
             <Route path="/" element={<Overview />} />
             <Route path="/transactions" element={<Transactions />} />
+            <Route path="/wallets" element={<Wallets />} />
             <Route path="/budget" element={<Budget />} />
             <Route path="/goals" element={<Goals />} />
+            <Route path="/family" element={<Family />} />
+            <Route path="/categories" element={<Categories />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
 

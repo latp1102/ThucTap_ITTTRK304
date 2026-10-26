@@ -1,9 +1,10 @@
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useEffect, useState } from 'react';
-import { Users, TrendingUp, DollarSign, Activity } from 'lucide-react';
+import { Users, UserPlus, Home, ArrowLeftRight } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../../lib/axios';
 import { AdminDashboard as AdminDashboardType } from '../../types';
-import { formatNumber, formatCurrency } from '../../lib/utils';
+import { formatNumber } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
 export default function AdminDashboard() {
@@ -19,7 +20,7 @@ export default function AdminDashboard() {
       setLoading(true);
       const response = await api.get<AdminDashboardType>('/admin/dashboard');
       setDashboard(response.data);
-    } catch (error) {
+    } catch {
       toast.error('Không thể tải dữ liệu dashboard');
     } finally {
       setLoading(false);
@@ -34,177 +35,114 @@ export default function AdminDashboard() {
     );
   }
 
+  const stats = [
+    {
+      label: 'Tổng người dùng',
+      value: formatNumber(dashboard?.totalUsers || 0),
+      sub: `+${formatNumber(dashboard?.newUsersThisMonth || 0)} tháng này`,
+      icon: Users,
+      iconClass: 'bg-primary/10 text-primary',
+    },
+    {
+      label: 'Người dùng hoạt động',
+      value: formatNumber(dashboard?.activeUsers || 0),
+      sub: `${dashboard?.totalUsers ? Math.round(((dashboard.activeUsers || 0) / dashboard.totalUsers) * 100) : 0}% tổng số`,
+      icon: UserPlus,
+      iconClass: 'bg-success/10 text-success',
+    },
+    {
+      label: 'Không gian tài chính',
+      value: formatNumber(dashboard?.totalSpaces || 0),
+      sub: `${formatNumber(dashboard?.familySpaces || 0)} nhóm gia đình`,
+      icon: Home,
+      iconClass: 'bg-warning/10 text-warning',
+    },
+    {
+      label: 'Giao dịch tháng này',
+      value: formatNumber(dashboard?.totalTransactionsThisMonth || 0),
+      sub: 'Theo dõi hệ thống',
+      icon: ArrowLeftRight,
+      iconClass: 'bg-danger/10 text-danger',
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
         <p className="text-gray-500 mt-1">Tổng quan hệ thống</p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="card">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Users className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <div className="text-sm text-gray-600">Tổng người dùng</div>
-              <div className="text-2xl font-bold text-gray-900">
-                {formatNumber(dashboard?.totalUsers || 0)}
-              </div>
-              {dashboard && dashboard.userGrowth > 0 && (
-                <div className="text-xs text-success flex items-center gap-1 mt-1">
-                  <TrendingUp className="w-3 h-3" />
-                  +{dashboard.userGrowth}% so với tháng trước
+        {stats.map((s) => {
+          const Icon = s.icon;
+          return (
+            <div key={s.label} className="card">
+              <div className="flex items-center gap-3">
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${s.iconClass}`}>
+                  <Icon className="w-6 h-6" />
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center">
-              <Activity className="w-6 h-6 text-success" />
-            </div>
-            <div>
-              <div className="text-sm text-gray-600">Người dùng hoạt động</div>
-              <div className="text-2xl font-bold text-gray-900">
-                {formatNumber(dashboard?.activeUsers || 0)}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-warning/10 flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-warning" />
-            </div>
-            <div>
-              <div className="text-sm text-gray-600">Tổng giao dịch</div>
-              <div className="text-2xl font-bold text-gray-900">
-                {formatNumber(dashboard?.totalTransactions || 0)}
-              </div>
-              {dashboard && dashboard.transactionGrowth > 0 && (
-                <div className="text-xs text-success flex items-center gap-1 mt-1">
-                  <TrendingUp className="w-3 h-3" />
-                  +{dashboard.transactionGrowth}% so với tháng trước
+                <div>
+                  <div className="text-sm text-gray-600">{s.label}</div>
+                  <div className="text-2xl font-bold text-gray-900">{s.value}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{s.sub}</div>
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-danger/10 flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-danger" />
-            </div>
-            <div>
-              <div className="text-sm text-gray-600">Tổng doanh thu</div>
-              <div className="text-2xl font-bold text-gray-900">
-                {formatCurrency(dashboard?.totalRevenue || 0)}
               </div>
             </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
 
-      {/* User Growth Chart */}
-      <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-6">
-          Tăng trưởng người dùng
-        </h2>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={dashboard?.usersByMonth || []}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="count"
-                stroke="#5B4FFF"
-                strokeWidth={2}
-                dot={{ fill: '#5B4FFF', r: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* User registration trend */}
+        <div className="card">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">
+            Đăng ký người dùng (6 tháng)
+          </h2>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={dashboard?.userRegistrationTrend || []}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#5B4FFF"
+                  strokeWidth={2}
+                  dot={{ fill: '#5B4FFF', r: 4 }}
+                  name="Đăng ký"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-      </div>
 
-      {/* Recent Users */}
-      <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Người dùng mới nhất
-        </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                  Người dùng
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                  Email
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                  Vai trò
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                  Trạng thái
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
-                  Ngày tạo
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {dashboard?.recentUsers.map((user) => (
-                <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-medium">
-                        {user.fullName.charAt(0)}
-                      </div>
-                      <div>
-                        <div className="font-medium text-sm text-gray-900">
-                          {user.fullName}
-                        </div>
-                        <div className="text-xs text-gray-500">{user.username}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-sm text-gray-600">{user.email}</td>
-                  <td className="py-3 px-4">
-                    <span
-                      className={`badge ${
-                        user.role === 'ADMIN' ? 'badge-danger' : 'badge-primary'
-                      }`}
-                    >
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span
-                      className={`badge ${
-                        user.isActive ? 'badge-success' : 'badge-danger'
-                      }`}
-                    >
-                      {user.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-sm text-gray-600">
-                    {new Date(user.createdAt).toLocaleDateString('vi-VN')}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Transaction trend */}
+        <div className="card">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">
+            Giao dịch (6 tháng)
+          </h2>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={dashboard?.transactionTrend || []}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#2DD4BF"
+                  strokeWidth={2}
+                  dot={{ fill: '#2DD4BF', r: 4 }}
+                  name="Giao dịch"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>

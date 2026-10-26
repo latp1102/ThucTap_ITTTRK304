@@ -1,5 +1,6 @@
+// Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useEffect, useState } from 'react';
-import { Search, UserPlus, Ban, CheckCircle } from 'lucide-react';
+import { Search, Ban, CheckCircle } from 'lucide-react';
 import api from '../../lib/axios';
 import { User, PageResponse } from '../../types';
 import { formatDateTime } from '../../lib/utils';
@@ -216,7 +217,7 @@ export default function Users() {
                     onClick={() =>
                       setFilters({ ...filters, page: Math.max(0, filters.page - 1) })
                     }
-                    disabled={users.page === 0}
+                    disabled={users.pageNumber === 0}
                     className="btn btn-secondary disabled:opacity-50"
                   >
                     Trước
@@ -228,7 +229,7 @@ export default function Users() {
                         page: Math.min(users.totalPages - 1, filters.page + 1),
                       })
                     }
-                    disabled={users.page >= users.totalPages - 1}
+                    disabled={users.pageNumber >= users.totalPages - 1}
                     className="btn btn-secondary disabled:opacity-50"
                   >
                     Sau

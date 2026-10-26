@@ -1,3 +1,4 @@
+# Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 # ============================================================
 # Docker Compose — BTON Personal Finance Management System
 # Services: mysql · backend · frontend
@@ -26,6 +27,7 @@ services:
       - "${MYSQL_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - ./scripts/backup:/backup          # mount backup directory
     networks:
       - bton-net

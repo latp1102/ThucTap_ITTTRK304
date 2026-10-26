@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.service.impl;
 
 import com.example.bton.dto.request.BudgetRequest;
@@ -46,7 +47,7 @@ public class BudgetServiceImpl {
     public BudgetResponse createBudget(Long userId, BudgetRequest request) {
         spaceService.verifySpaceAccess(request.getSpaceId(), userId);
 
-        if (budgetRepository.existsBySpaceIdAndCategoryIdAndMonthAndYear(
+        if (budgetRepository.existsBySpaceIdAndCategoryIdAndBudgetMonthAndBudgetYear(
                 request.getSpaceId(), request.getCategoryId(), request.getMonth(), request.getYear())) {
             throw new DuplicateResourceException(
                     "Budget already exists for this category in the selected month/year");
@@ -64,8 +65,8 @@ public class BudgetServiceImpl {
                 .user(user)
                 .category(category)
                 .amount(request.getAmount())
-                .month(request.getMonth())
-                .year(request.getYear())
+                .budgetMonth(request.getMonth())
+                .budgetYear(request.getYear())
                 .warningThreshold(request.getWarningThreshold() != null
                         ? request.getWarningThreshold() : new BigDecimal("80.00"))
                 .build();
@@ -86,7 +87,7 @@ public class BudgetServiceImpl {
         }
 
         budget = budgetRepository.save(budget);
-        return mapToResponse(budget, budget.getSpace().getId(), budget.getMonth(), budget.getYear());
+        return mapToResponse(budget, budget.getSpace().getId(), budget.getBudgetMonth(), budget.getBudgetYear());
     }
 
     @Transactional

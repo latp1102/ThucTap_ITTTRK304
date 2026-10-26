@@ -1,3 +1,4 @@
+// Tác giả: Trần Hữu Nhật (Backend & DevOps Lead)
 package com.example.bton.service.impl;
 
 import com.example.bton.dto.request.ChangePasswordRequest;
@@ -6,19 +7,25 @@ import com.example.bton.dto.request.RegisterRequest;
 import com.example.bton.dto.response.AuthResponse;
 import com.example.bton.dto.response.UserResponse;
 import com.example.bton.entity.FinancialSpace;
+import com.example.bton.entity.RefreshToken;
 import com.example.bton.entity.User;
+import com.example.bton.entity.Wallet;
 import com.example.bton.enums.Role;
 import com.example.bton.enums.SpaceType;
+import com.example.bton.enums.WalletType;
 import com.example.bton.exception.BadRequestException;
 import com.example.bton.exception.DuplicateResourceException;
 import com.example.bton.exception.ResourceNotFoundException;
 import com.example.bton.repository.FinancialSpaceRepository;
+import com.example.bton.repository.RefreshTokenRepository;
 import com.example.bton.repository.UserRepository;
+import com.example.bton.repository.WalletRepository;
 import com.example.bton.security.JwtTokenProvider;
 import com.example.bton.security.UserPrincipal;
 import com.example.bton.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,6 +33,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +48,11 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final WalletRepository walletRepository;
+
+    @Value("${app.jwt.refresh-expiration}")
+    private long refreshExpirationMs;
 
     @Override
     @Transactional
@@ -70,7 +86,19 @@ public class AuthServiceImpl implements AuthService {
                 .owner(user)
                 .isActive(true)
                 .build();
-        spaceRepository.save(personalSpace);
+        personalSpace = spaceRepository.save(personalSpace);
+
+        // UC01: auto-create a default cash wallet with 0 balance
+        walletRepository.save(Wallet.builder()
+                .user(user)
+                .space(personalSpace)
+                .name("Tiền mặt")
+                .walletType(WalletType.CASH)
+                .currency("VND")
+                .balance(BigDecimal.ZERO)
+                .isShared(false)
+                .isActive(true)
+                .build());
 
         log.info("New user registered: {} ({})", user.getUsername(), user.getEmail());
 
@@ -80,18 +108,11 @@ public class AuthServiceImpl implements AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = tokenProvider.generateToken(authentication);
 
-        return AuthResponse.builder()
-                .accessToken(token)
-                .tokenType("Bearer")
-                .userId(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .role(user.getRole())
-                .build();
+        return buildAuthResponse(user, token);
     }
 
     @Override
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -105,8 +126,61 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("User logged in: {}", user.getUsername());
 
+        return buildAuthResponse(user, token);
+    }
+
+    @Override
+    @Transactional
+    public AuthResponse refresh(String refreshTokenValue) {
+        RefreshToken storedToken = refreshTokenRepository.findByToken(refreshTokenValue)
+                .orElseThrow(() -> new BadRequestException(
+                        "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại. (FIN-NB11)"));
+
+        if (Boolean.TRUE.equals(storedToken.getIsRevoked())
+                || storedToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException(
+                    "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại. (FIN-NB11)");
+        }
+
+        // Token rotation: revoke the used token and issue a new pair
+        storedToken.setIsRevoked(true);
+        refreshTokenRepository.save(storedToken);
+
+        User user = storedToken.getUser();
+        if (!user.getIsActive()) {
+            throw new BadRequestException("Tài khoản đã bị vô hiệu hóa");
+        }
+
+        String newAccessToken = tokenProvider.generateTokenFromUserId(user.getId());
+        log.info("Access token refreshed for user: {}", user.getUsername());
+        return buildAuthResponse(user, newAccessToken);
+    }
+
+    @Override
+    @Transactional
+    public void logout(String refreshTokenValue) {
+        if (refreshTokenValue != null && !refreshTokenValue.isBlank()) {
+            refreshTokenRepository.findByToken(refreshTokenValue)
+                    .ifPresent(token -> {
+                        token.setIsRevoked(true);
+                        refreshTokenRepository.save(token);
+                    });
+        }
+        log.info("User logged out, refresh token revoked");
+    }
+
+    private AuthResponse buildAuthResponse(User user, String accessToken) {
+        String refreshTokenValue = UUID.randomUUID().toString();
+        refreshTokenRepository.save(RefreshToken.builder()
+                .user(user)
+                .token(refreshTokenValue)
+                .expiryDate(LocalDateTime.now().plusSeconds(refreshExpirationMs / 1000))
+                .isRevoked(false)
+                .build());
+
         return AuthResponse.builder()
-                .accessToken(token)
+                .accessToken(accessToken)
+                .refreshToken(refreshTokenValue)
                 .tokenType("Bearer")
                 .userId(user.getId())
                 .username(user.getUsername())
