@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +39,7 @@ public class AuthController {
     }
 
     @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get current authenticated user info",
             security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<UserResponse> getCurrentUser(
@@ -46,6 +48,7 @@ public class AuthController {
     }
 
     @PutMapping("/change-password")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Change current user password",
             security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<Void> changePassword(
