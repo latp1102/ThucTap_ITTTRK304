@@ -95,9 +95,9 @@ create table if not exists wallets (
     user_id bigint not null,
     space_id bigint,
     name varchar(100) not null,
-    wallet_type enum('CASH', 'BANK', 'E_WALLET', 'CREDIT') not null default 'CASH',
+    wallet_type enum('CASH', 'BANK', 'E_WALLET') not null default 'CASH',
     balance decimal(15, 2) not null default 0.00,
-    currency varchar(10) not null default 'VND',
+    currency varchar(3) not null default 'VND',
     is_shared boolean not null default false,
     is_active boolean not null default true,
     created_at timestamp not null default current_timestamp,
@@ -114,7 +114,7 @@ create table if not exists transactions (
     id bigint not null auto_increment,
     space_id bigint not null,
     user_id bigint not null,
-    category_id bigint not null,
+    category_id bigint,
     wallet_id bigint,
     destination_wallet_id bigint,
     type enum('INCOME', 'EXPENSE', 'TRANSFER') not null,
@@ -122,6 +122,8 @@ create table if not exists transactions (
     description varchar(500),
     transaction_date date not null,
     note text,
+    receipt_url varchar(500),
+    is_deleted boolean not null default false,
     created_at timestamp not null default current_timestamp,
     updated_at timestamp not null default current_timestamp on update current_timestamp,
     primary key (id),
@@ -134,7 +136,8 @@ create table if not exists transactions (
     index idx_transactions_user (user_id),
     index idx_transactions_category (category_id),
     index idx_transactions_type (type),
-    index idx_transactions_date (transaction_date)
+    index idx_transactions_date (transaction_date),
+    index idx_transactions_is_deleted (is_deleted)
 ) engine=innodb default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- 7. bảng transaction_receipts (ảnh hóa đơn đính kèm giao dịch)
@@ -156,8 +159,8 @@ create table if not exists budgets (
     user_id bigint not null,
     category_id bigint not null,
     amount decimal(15, 2) not null,
-    month int not null,
-    year int not null,
+    budget_month int not null,
+    budget_year int not null,
     warning_threshold decimal(5, 2) not null default 80.00,
     created_at timestamp not null default current_timestamp,
     updated_at timestamp not null default current_timestamp on update current_timestamp,
@@ -165,10 +168,10 @@ create table if not exists budgets (
     foreign key fk_budgets_space (space_id) references financial_spaces(id) on delete cascade,
     foreign key fk_budgets_user (user_id) references users(id) on delete cascade,
     foreign key fk_budgets_category (category_id) references categories(id),
-    unique key uk_budget_space_category_month (space_id, category_id, month, year),
+    unique key uk_budget_space_category_period (space_id, category_id, budget_month, budget_year),
     index idx_budgets_space (space_id),
     index idx_budgets_user (user_id),
-    index idx_budgets_month_year (month, year)
+    index idx_budgets_month_year (budget_month, budget_year)
 ) engine=innodb default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- 9. bảng savings_goals (mục tiêu tiết kiệm)
@@ -234,25 +237,27 @@ create table if not exists refresh_tokens (
     user_id bigint not null,
     token varchar(500) not null,
     expiry_date timestamp not null,
+    is_revoked boolean not null default false,
     created_at timestamp not null default current_timestamp,
     primary key (id),
     foreign key fk_tokens_user (user_id) references users(id) on delete cascade,
     unique key uk_refresh_tokens_token (token(255)),
-    index idx_tokens_user (user_id)
+    index idx_tokens_user (user_id),
+    index idx_tokens_revoked (is_revoked)
 ) engine=innodb default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- DỮ LIỆU SEEDING KHỞI TẠO (Data Seeding)
--- Mật khẩu mặc định: Password123! ($2a$10$wE1.0J0Y3y1f5s0i2k0d0u9v7e8g6h4j2l1o9q8w7e6r5t4y3u2i1)
+-- Mật khẩu mặc định: Admin@1234 (admin) / Password123! (thành viên)
 -- ============================================================
 
 -- Người dùng mẫu: Quản trị viên Admin & Thành viên nhóm
 insert into users (id, username, email, password_hash, full_name, phone, role, is_active) values
-(1, 'admin', 'admin@finance.app', '$2a$10$wK1k6V78j2rR6K/4w646ceB5i/Qv37gG08hZ7F5v7jQ2t7y8u9i0.', 'Hệ Thống Quản Trị', '0901234567', 'ADMIN', true),
-(2, 'huunhat', 'huunhat@finance.app', '$2a$10$wK1k6V78j2rR6K/4w646ceB5i/Qv37gG08hZ7F5v7jQ2t7y8u9i0.', 'Trần Hữu Nhật', '0912345678', 'USER', true),
-(3, 'hoangphuc', 'hoangphuc@finance.app', '$2a$10$wK1k6V78j2rR6K/4w646ceB5i/Qv37gG08hZ7F5v7jQ2t7y8u9i0.', 'Nguyễn Hoàng Phúc', '0923456789', 'USER', true),
-(4, 'thephong', 'thephong@finance.app', '$2a$10$wK1k6V78j2rR6K/4w646ceB5i/Qv37gG08hZ7F5v7jQ2t7y8u9i0.', 'La Thế Phong', '0934567890', 'USER', true),
-(5, 'manhthang', 'manhthang@finance.app', '$2a$10$wK1k6V78j2rR6K/4w646ceB5i/Qv37gG08hZ7F5v7jQ2t7y8u9i0.', 'Nguyễn Mạnh Thắng', '0945678901', 'USER', true)
+(1, 'admin', 'admin@finance.app', '$2a$10$JizcpfkO7BoN5tAcZJQHB.6mnaSYOgEveja8KLEYbOuj9Lx7uKtvG', 'Hệ Thống Quản Trị', '0901234567', 'ADMIN', true),
+(2, 'huunhat', 'huunhat@finance.app', '$2a$10$wqEaogl8Gt.wKEc7raIlKuRhluuHTOabgi.hDxQwMIH4DuNvmayJ6', 'Trần Hữu Nhật', '0912345678', 'USER', true),
+(3, 'hoangphuc', 'hoangphuc@finance.app', '$2a$10$wqEaogl8Gt.wKEc7raIlKuRhluuHTOabgi.hDxQwMIH4DuNvmayJ6', 'Nguyễn Hoàng Phúc', '0923456789', 'USER', true),
+(4, 'thephong', 'thephong@finance.app', '$2a$10$wqEaogl8Gt.wKEc7raIlKuRhluuHTOabgi.hDxQwMIH4DuNvmayJ6', 'La Thế Phong', '0934567890', 'USER', true),
+(5, 'manhthang', 'manhthang@finance.app', '$2a$10$wqEaogl8Gt.wKEc7raIlKuRhluuHTOabgi.hDxQwMIH4DuNvmayJ6', 'Nguyễn Mạnh Thắng', '0945678901', 'USER', true)
 on duplicate key update username = values(username);
 
 -- Danh mục chuẩn hệ thống (System Categories)
@@ -294,7 +299,7 @@ insert into wallets (id, user_id, space_id, name, wallet_type, balance, currency
 on duplicate key update name = values(name);
 
 -- Hạn mức ngân sách tháng mẫu (Tháng 11/2026)
-insert into budgets (id, space_id, user_id, category_id, amount, month, year, warning_threshold) values
+insert into budgets (id, space_id, user_id, category_id, amount, budget_month, budget_year, warning_threshold) values
 (1, 1, 2, 5, 4000000.00, 11, 2026, 80.00),
 (2, 1, 2, 8, 1000000.00, 11, 2026, 80.00),
 (3, 2, 2, 5, 8000000.00, 11, 2026, 80.00),
