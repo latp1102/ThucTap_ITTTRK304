@@ -55,7 +55,7 @@ public class Wallet {
     @Builder.Default
     private Boolean isShared = false;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
 
