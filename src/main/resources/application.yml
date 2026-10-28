@@ -15,7 +15,7 @@ spring:
       max-lifetime: 1800000
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate   # schema is owned by Flyway, never auto-altered
     show-sql: false
     properties:
       hibernate:

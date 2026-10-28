@@ -1,3 +1,4 @@
+import { getErrorMessage } from '../../lib/apiError';
 // Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useEffect, useState } from 'react';
 import { Home, Plus, LogIn, Copy, UserPlus, LogOut, Trash2, Users } from 'lucide-react';
@@ -38,6 +39,7 @@ export default function Family() {
 
   useEffect(() => {
     fetchSpaces();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchSpaces = async () => {
@@ -75,8 +77,8 @@ export default function Family() {
       setCreateForm({ name: '', description: '' });
       fetchSpaces();
       setCurrentSpace(data);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể tạo không gian');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể tạo không gian'));
     } finally {
       setCreating(false);
     }
@@ -98,8 +100,8 @@ export default function Family() {
       setJoinCode('');
       fetchSpaces();
       setCurrentSpace(data);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Mã mời không hợp lệ');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Mã mời không hợp lệ'));
     } finally {
       setJoining(false);
     }
@@ -134,8 +136,8 @@ export default function Family() {
       setInviteForm({ usernameOrEmail: '', role: 'MEMBER' });
       const { data } = await api.get<FamilyMember[]>(`/spaces/${selectedSpace.id}/members`);
       setMembers(data);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể thêm thành viên');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể thêm thành viên'));
     } finally {
       setInviting(false);
     }
@@ -148,8 +150,8 @@ export default function Family() {
       await api.delete(`/spaces/${selectedSpace.id}/members/${member.userId}`);
       toast.success('Đã xóa thành viên');
       setMembers((prev) => prev.filter((m) => m.userId !== member.userId));
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể xóa thành viên');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể xóa thành viên'));
     }
   };
 
@@ -160,8 +162,8 @@ export default function Family() {
       toast.success('Đã rời khỏi không gian');
       fetchSpaces();
       if (selectedSpace?.id === space.id) setSelectedSpace(null);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể rời khỏi không gian');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể rời khỏi không gian'));
     }
   };
 
@@ -172,8 +174,8 @@ export default function Family() {
       toast.success('Đã xóa không gian');
       fetchSpaces();
       if (selectedSpace?.id === space.id) setSelectedSpace(null);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể xóa không gian');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể xóa không gian'));
     }
   };
 

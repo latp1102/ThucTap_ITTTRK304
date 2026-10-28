@@ -1,5 +1,12 @@
 -- Tác giả: La Thế Phong (Database & Data Lead)
 -- ============================================================
+-- database/init.sql  [LEGACY - KHONG DUNG CHO BAN CAI MOI]
+-- Schema + seed data are managed by Flyway:
+--   src/main/resources/db/migration/V1..V10
+-- docker-compose does NOT mount this file anymore. Keep it only as a
+-- historical reference; running it together with Flyway causes
+-- duplicated/conflicting demo data.
+-- ============================================================
 -- database/init.sql
 -- Hệ thống Quản lý Thu chi Cá nhân và Gia đình
 -- Lưu ý: Toàn bộ từ khóa MySQL đều được viết thường (lowercase)

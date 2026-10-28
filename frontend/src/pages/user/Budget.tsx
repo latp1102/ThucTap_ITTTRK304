@@ -1,3 +1,4 @@
+import { getErrorMessage } from '../../lib/apiError';
 // Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useEffect, useState } from 'react';
 import { Plus, TrendingUp, Pencil, Trash2 } from 'lucide-react';
@@ -106,8 +107,8 @@ export default function Budget() {
       }
       setShowForm(false);
       fetchBudgets();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể lưu ngân sách');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể lưu ngân sách'));
     } finally {
       setSaving(false);
     }
@@ -119,8 +120,8 @@ export default function Budget() {
       await api.delete(`/budgets/${id}`);
       toast.success('Đã xóa ngân sách');
       fetchBudgets();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể xóa ngân sách');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể xóa ngân sách'));
     }
   };
 

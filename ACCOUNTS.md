@@ -105,8 +105,6 @@ SĐT:      0901234567
 # Database: bton_db sẽ tự động được tạo
 
 # Chạy Spring Boot
-./mvnw spring-boot:run
-# hoặc
 ./gradlew bootRun
 ```
 

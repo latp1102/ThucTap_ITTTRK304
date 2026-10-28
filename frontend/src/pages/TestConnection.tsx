@@ -1,9 +1,19 @@
 // Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useState } from 'react';
 import axios from 'axios';
+import { getErrorMessage } from '../lib/apiError';
+
+interface TestResult {
+  status?: number;
+  statusText?: string;
+  data?: unknown;
+  error?: string;
+  stack?: string;
+  response?: unknown;
+}
 
 export default function TestConnection() {
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<TestResult | null>(null);
   const [loading, setLoading] = useState(false);
 
   const testBackend = async () => {
@@ -26,10 +36,10 @@ export default function TestConnection() {
         statusText: response.statusText,
         data: data,
       });
-    } catch (error: any) {
+    } catch (error) {
       setResult({
-        error: error.message,
-        stack: error.stack,
+        error: getErrorMessage(error, 'Request failed'),
+        stack: error instanceof Error ? error.stack : undefined,
       });
     } finally {
       setLoading(false);
@@ -49,11 +59,12 @@ export default function TestConnection() {
         statusText: response.statusText,
         data: response.data,
       });
-    } catch (error: any) {
+    } catch (error) {
+      const response = axios.isAxiosError(error) ? error.response : undefined;
       setResult({
-        error: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
+        error: getErrorMessage(error, 'Request failed'),
+        response: response?.data,
+        status: response?.status,
       });
     } finally {
       setLoading(false);

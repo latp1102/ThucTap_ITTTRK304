@@ -1,15 +1,21 @@
+import { getErrorMessage } from '../../lib/apiError';
 // Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Wallet, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../lib/axios';
 import { useAuthStore } from '../../store/authStore';
+import { useSpaceStore } from '../../store/spaceStore';
 import { AuthResponse } from '../../types';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const errorText = (key: string) => (key.startsWith('auth.') ? t(key) : key);
   const login = useAuthStore((state) => state.login);
+  const clearSpaces = useSpaceStore((state) => state.clear);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -28,13 +34,13 @@ export default function Login() {
     };
 
     if (!formData.usernameOrEmail.trim()) {
-      newErrors.usernameOrEmail = 'Vui lòng nhập username hoặc email';
+      newErrors.usernameOrEmail = 'auth.errors.usernameOrEmailRequired';
     }
 
     if (!formData.password) {
-      newErrors.password = 'Vui lòng nhập mật khẩu';
+      newErrors.password = 'auth.errors.loginPasswordRequired';
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+      newErrors.password = 'auth.errors.loginPasswordMin';
     }
 
     setErrors(newErrors);
@@ -61,10 +67,14 @@ export default function Login() {
         isActive: true,
         createdAt: '',
       }, response.data.accessToken, response.data.refreshToken);
-      toast.success('Đăng nhập thành công!');
+      clearSpaces();
+      toast.success(t('auth.login.success'));
       navigate('/');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Đăng nhập thất bại');
+    } catch (error) {
+      const status = (error as { response?: { status?: number } }).response?.status;
+      toast.error(
+        status === 401 ? t('auth.errors.invalidCredentials') : getErrorMessage(error, t('auth.login.failed'))
+      );
     } finally {
       setLoading(false);
     }
@@ -91,31 +101,31 @@ export default function Login() {
           </div>
         </div>
 
-        <h1 className="text-2xl font-bold text-center mb-2">Welcome back</h1>
+        <h1 className="text-2xl font-bold text-center mb-2">{t('auth.login.title')}</h1>
         <p className="text-gray-600 text-center mb-8">
-          Sign in to continue to your account
+          {t('auth.login.subtitle')}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Username or Email
+              {t('auth.login.usernameOrEmail')}
             </label>
             <input
               type="text"
               value={formData.usernameOrEmail}
               onChange={(e) => handleChange('usernameOrEmail', e.target.value)}
               className={`input ${errors.usernameOrEmail ? 'border-danger focus:ring-danger' : ''}`}
-              placeholder="Enter username or email"
+              placeholder={t('auth.login.usernameOrEmailPlaceholder')}
             />
             {errors.usernameOrEmail && (
-              <p className="mt-1 text-sm text-danger">{errors.usernameOrEmail}</p>
+              <p className="mt-1 text-sm text-danger">{errorText(errors.usernameOrEmail)}</p>
             )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
+              {t('auth.login.password')}
             </label>
             <div className="relative">
               <input
@@ -123,7 +133,7 @@ export default function Login() {
                 value={formData.password}
                 onChange={(e) => handleChange('password', e.target.value)}
                 className={`input pr-10 ${errors.password ? 'border-danger focus:ring-danger' : ''}`}
-                placeholder="Enter password"
+                placeholder={t('auth.login.passwordPlaceholder')}
               />
               <button
                 type="button"
@@ -138,7 +148,7 @@ export default function Login() {
               </button>
             </div>
             {errors.password && (
-              <p className="mt-1 text-sm text-danger">{errors.password}</p>
+              <p className="mt-1 text-sm text-danger">{errorText(errors.password)}</p>
             )}
           </div>
 
@@ -147,15 +157,15 @@ export default function Login() {
             disabled={loading}
             className="btn btn-primary w-full"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? t('auth.login.submitting') : t('auth.login.submit')}
           </button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-gray-600">
-            Don't have an account?{' '}
+            {t('auth.login.noAccount')}{' '}
             <Link to="/register" className="text-primary hover:text-primary-dark font-medium">
-              Sign up
+              {t('auth.login.signUp')}
             </Link>
           </p>
         </div>

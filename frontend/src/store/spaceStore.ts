@@ -7,10 +7,11 @@ interface SpaceState {
   spaces: FinancialSpace[];
   currentSpace: FinancialSpace | null;
   setSpaces: (spaces: FinancialSpace[]) => void;
-  setCurrentSpace: (space: FinancialSpace) => void;
+  setCurrentSpace: (space: FinancialSpace | null) => void;
   addSpace: (space: FinancialSpace) => void;
   updateSpace: (space: FinancialSpace) => void;
   removeSpace: (id: number) => void;
+  clear: () => void;
 }
 
 export const useSpaceStore = create<SpaceState>()(
@@ -34,6 +35,7 @@ export const useSpaceStore = create<SpaceState>()(
           currentSpace:
             state.currentSpace?.id === id ? null : state.currentSpace,
         })),
+      clear: () => set({ spaces: [], currentSpace: null }),
     }),
     {
       name: 'space-storage',

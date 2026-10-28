@@ -12,7 +12,7 @@ import toast from 'react-hot-toast';
 const COLORS = ['#5B4FFF', '#2DD4BF', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#10B981', '#F97316'];
 
 export default function Overview() {
-  const { currentSpace } = useSpaceStore();
+  const { currentSpace, spaces } = useSpaceStore();
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
 
@@ -20,17 +20,22 @@ export default function Overview() {
   const month = currentDate.getMonth() + 1;
   const year = currentDate.getFullYear();
 
+  // Only fetch when the selected space actually belongs to the logged-in user.
+  // Prevents a 403 when a space id persisted from a previous account is reused.
+  const activeSpace =
+    currentSpace && spaces.some((s) => s.id === currentSpace.id) ? currentSpace : null;
+
   useEffect(() => {
-    if (currentSpace) fetchDashboard();
+    if (activeSpace) fetchDashboard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSpace]);
+  }, [activeSpace]);
 
   const fetchDashboard = async () => {
-    if (!currentSpace) return;
+    if (!activeSpace) return;
     try {
       setLoading(true);
       const response = await api.get<DashboardResponse>(
-        `/reports/dashboard?spaceId=${currentSpace.id}&month=${month}&year=${year}`
+        `/reports/dashboard?spaceId=${activeSpace.id}&month=${month}&year=${year}`
       );
       setDashboard(response.data);
     } catch {
@@ -40,7 +45,7 @@ export default function Overview() {
     }
   };
 
-  if (!currentSpace) {
+  if (!activeSpace) {
     return (
       <div className="flex items-center justify-center h-96">
         <p className="text-gray-500">Vui lòng chọn không gian tài chính</p>
@@ -69,7 +74,7 @@ export default function Overview() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Tổng quan</h1>
           <p className="text-gray-500 mt-1">
-            Tháng {month}/{year} — {currentSpace.name}
+            Tháng {month}/{year} — {activeSpace.name}
           </p>
         </div>
         <Link to="/transactions" className="btn btn-primary">
