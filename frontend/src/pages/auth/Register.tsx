@@ -1,12 +1,16 @@
+import { getErrorMessage } from '../../lib/apiError';
 // Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Wallet, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../lib/axios';
 
 export default function Register() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const errorText = (key: string) => (key.startsWith('auth.') ? t(key) : key);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -31,31 +35,33 @@ export default function Register() {
     };
 
     if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Vui lòng nhập họ tên';
+      newErrors.fullName = 'auth.errors.fullNameRequired';
     } else if (formData.fullName.trim().length < 3) {
-      newErrors.fullName = 'Họ tên phải có ít nhất 3 ký tự';
+      newErrors.fullName = 'auth.errors.fullNameMin';
     }
 
     if (!formData.username.trim()) {
-      newErrors.username = 'Vui lòng nhập username';
+      newErrors.username = 'auth.errors.usernameRequired';
     } else if (formData.username.length < 3) {
-      newErrors.username = 'Username phải có ít nhất 3 ký tự';
-    } else if (!/^[a-zA-Z0-9._]+$/.test(formData.username)) {
-      newErrors.username = 'Username chỉ chứa chữ, số, dấu chấm và gạch dưới';
+      newErrors.username = 'auth.errors.usernameMin';
+    } else if (!/^[a-zA-Z0-9._-]+$/.test(formData.username)) {
+      newErrors.username = 'auth.errors.usernamePattern';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Vui lòng nhập email';
+      newErrors.email = 'auth.errors.emailRequired';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Email không hợp lệ';
+      newErrors.email = 'auth.errors.emailInvalid';
     }
 
     if (!formData.password) {
-      newErrors.password = 'Vui lòng nhập mật khẩu';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+      newErrors.password = 'auth.errors.passwordRequired';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'auth.errors.passwordMin';
+    } else if (formData.password.length > 100) {
+      newErrors.password = 'auth.errors.passwordMax';
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Mật khẩu phải có chữ hoa, chữ thường và số';
+      newErrors.password = 'auth.errors.passwordPattern';
     }
 
     setErrors(newErrors);
@@ -73,10 +79,40 @@ export default function Register() {
 
     try {
       await api.post('/auth/register', formData);
-      toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
+      toast.success(t('auth.register.success'));
       navigate('/login');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Đăng ký thất bại');
+    } catch (error) {
+      const response = (
+        error as {
+          response?: { status?: number; data?: { fieldErrors?: Record<string, string> } };
+        }
+      ).response;
+      const fieldErrors = response?.data?.fieldErrors;
+      if (fieldErrors) {
+        const fieldKeys: Record<string, string> = {
+          username: 'auth.errors.usernameInvalid',
+          email: 'auth.errors.emailInvalid',
+          password: 'auth.errors.passwordInvalid',
+          fullName: 'auth.errors.fullNameInvalid',
+        };
+        const mapped: Partial<typeof errors> = {};
+        (['username', 'email', 'password', 'fullName'] as const).forEach((field) => {
+          if (fieldErrors[field]) {
+            mapped[field] = fieldKeys[field];
+          }
+        });
+        if (Object.keys(mapped).length > 0) {
+          setErrors((prev) => ({ ...prev, ...mapped }));
+        }
+        const firstKey = Object.keys(fieldErrors)[0];
+        toast.error(
+          firstKey && fieldKeys[firstKey] ? t(fieldKeys[firstKey]) : t('auth.register.failed')
+        );
+      } else if (response?.status === 409) {
+        toast.error(t('auth.errors.duplicateUser'));
+      } else {
+        toast.error(getErrorMessage(error, t('auth.register.failed')));
+      }
     } finally {
       setLoading(false);
     }
@@ -103,63 +139,63 @@ export default function Register() {
           </div>
         </div>
 
-        <h1 className="text-2xl font-bold text-center mb-2">Create Account</h1>
+        <h1 className="text-2xl font-bold text-center mb-2">{t('auth.register.title')}</h1>
         <p className="text-gray-600 text-center mb-8">
-          Sign up to get started
+          {t('auth.register.subtitle')}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name <span className="text-danger">*</span>
+              {t('auth.register.fullName')} <span className="text-danger">*</span>
             </label>
             <input
               type="text"
               value={formData.fullName}
               onChange={(e) => handleChange('fullName', e.target.value)}
               className={`input ${errors.fullName ? 'border-danger focus:ring-danger' : ''}`}
-              placeholder="Enter full name"
+              placeholder={t('auth.register.fullNamePlaceholder')}
             />
             {errors.fullName && (
-              <p className="mt-1 text-sm text-danger">{errors.fullName}</p>
+              <p className="mt-1 text-sm text-danger">{errorText(errors.fullName)}</p>
             )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Username <span className="text-danger">*</span>
+              {t('auth.register.username')} <span className="text-danger">*</span>
             </label>
             <input
               type="text"
               value={formData.username}
               onChange={(e) => handleChange('username', e.target.value)}
               className={`input ${errors.username ? 'border-danger focus:ring-danger' : ''}`}
-              placeholder="Enter username"
+              placeholder={t('auth.register.usernamePlaceholder')}
             />
             {errors.username && (
-              <p className="mt-1 text-sm text-danger">{errors.username}</p>
+              <p className="mt-1 text-sm text-danger">{errorText(errors.username)}</p>
             )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email <span className="text-danger">*</span>
+              {t('auth.register.email')} <span className="text-danger">*</span>
             </label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
               className={`input ${errors.email ? 'border-danger focus:ring-danger' : ''}`}
-              placeholder="Enter email"
+              placeholder={t('auth.register.emailPlaceholder')}
             />
             {errors.email && (
-              <p className="mt-1 text-sm text-danger">{errors.email}</p>
+              <p className="mt-1 text-sm text-danger">{errorText(errors.email)}</p>
             )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password <span className="text-danger">*</span>
+              {t('auth.register.password')} <span className="text-danger">*</span>
             </label>
             <div className="relative">
               <input
@@ -167,7 +203,7 @@ export default function Register() {
                 value={formData.password}
                 onChange={(e) => handleChange('password', e.target.value)}
                 className={`input pr-10 ${errors.password ? 'border-danger focus:ring-danger' : ''}`}
-                placeholder="Enter password"
+                placeholder={t('auth.register.passwordPlaceholder')}
               />
               <button
                 type="button"
@@ -182,11 +218,11 @@ export default function Register() {
               </button>
             </div>
             {errors.password && (
-              <p className="mt-1 text-sm text-danger">{errors.password}</p>
+              <p className="mt-1 text-sm text-danger">{errorText(errors.password)}</p>
             )}
             {!errors.password && formData.password && (
               <p className="mt-1 text-xs text-gray-500">
-                Phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số
+                {t('auth.register.passwordHint')}
               </p>
             )}
           </div>
@@ -196,15 +232,15 @@ export default function Register() {
             disabled={loading}
             className="btn btn-primary w-full"
           >
-            {loading ? 'Creating account...' : 'Sign Up'}
+            {loading ? t('auth.register.submitting') : t('auth.register.submit')}
           </button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-gray-600">
-            Already have an account?{' '}
+            {t('auth.register.haveAccount')}{' '}
             <Link to="/login" className="text-primary hover:text-primary-dark font-medium">
-              Sign in
+              {t('auth.register.signIn')}
             </Link>
           </p>
         </div>

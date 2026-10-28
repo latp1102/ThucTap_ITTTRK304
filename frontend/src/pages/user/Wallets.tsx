@@ -1,3 +1,4 @@
+import { getErrorMessage } from '../../lib/apiError';
 // Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useEffect, useState } from 'react';
 import { Plus, Wallet, ArrowLeftRight, Pencil, Archive, Banknote, CreditCard, Smartphone } from 'lucide-react';
@@ -113,8 +114,8 @@ export default function Wallets() {
       }
       setShowForm(false);
       fetchWallets();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể lưu ví');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể lưu ví'));
     } finally {
       setSaving(false);
     }
@@ -126,8 +127,8 @@ export default function Wallets() {
       await api.patch(`/wallets/${w.id}/archive`);
       toast.success('Đã lưu trữ ví');
       fetchWallets();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể lưu trữ ví');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể lưu trữ ví'));
     }
   };
 
@@ -159,8 +160,8 @@ export default function Wallets() {
       setShowTransfer(false);
       setTransfer(emptyTransfer);
       fetchWallets();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Chuyển tiền thất bại');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Chuyển tiền thất bại'));
     } finally {
       setTransferring(false);
     }

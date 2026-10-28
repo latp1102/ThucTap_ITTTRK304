@@ -15,8 +15,11 @@ export const validatePassword = (password: string): string => {
   if (!password) {
     return 'Vui lòng nhập mật khẩu';
   }
-  if (password.length < 6) {
-    return 'Mật khẩu phải có ít nhất 6 ký tự';
+  if (password.length < 8) {
+    return 'Mật khẩu phải có ít nhất 8 ký tự';
+  }
+  if (password.length > 100) {
+    return 'Mật khẩu không được vượt quá 100 ký tự';
   }
   if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
     return 'Mật khẩu phải có chữ hoa, chữ thường và số';
@@ -31,8 +34,8 @@ export const validateUsername = (username: string): string => {
   if (username.length < 3) {
     return 'Username phải có ít nhất 3 ký tự';
   }
-  if (!/^[a-zA-Z0-9._]+$/.test(username)) {
-    return 'Username chỉ chứa chữ, số, dấu chấm và gạch dưới';
+  if (!/^[a-zA-Z0-9._-]+$/.test(username)) {
+    return 'Username chỉ chứa chữ, số, dấu chấm, gạch dưới và gạch ngang';
   }
   return '';
 };

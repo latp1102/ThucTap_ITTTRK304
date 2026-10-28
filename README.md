@@ -64,7 +64,7 @@ Hệ thống quản lý tài chính cá nhân và gia đình thông minh, giúp 
 - Java 17+
 - Node.js 18+
 - MySQL 8.0+
-- Maven 3.8+ hoặc Gradle 7+
+- Gradle 8+ (đã kèm `gradlew`, không cần cài thêm)
 
 ### ⚡ Khởi động trong 3 bước
 
@@ -75,7 +75,7 @@ CREATE DATABASE bton_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 **2. Chạy Backend:**
 ```bash
-./mvnw spring-boot:run
+./gradlew bootRun
 ```
 
 **3. Chạy Frontend:**
@@ -86,19 +86,69 @@ npm install && npm run dev
 
 ### 🔑 Tài khoản demo
 
+Có thể đăng nhập bằng **username** hoặc **email**.
+
 **Admin:**
 ```
 Username: admin
+Email:    admin@bton.app
 Password: Admin@1234
+Role:     ADMIN
 ```
 
-**User:**
+**User demo trên bản cài mới (Flyway seed):**
 ```
-Username: nguyen.van.a
-Password: User@1234
+Username: nguyen.van.a    | Password: User@1234 | Nguyễn Văn A
+Username: tran.thi.b      | Password: User@1234 | Trần Thị B
+Username: le.van.c        | Password: User@1234 | Lê Văn C
 ```
 
-👉 **Chi tiết:** Xem file [QUICK_START.md](QUICK_START.md)
+**User của DB cũ (được tạo từ `database/init.sql`):**
+```
+Username: huunhat         | Password: Password123!
+Username: hoangphuc       | Password: Password123!
+Username: thephong        | Password: Password123!
+Username: manhthang       | Password: Password123!
+```
+
+> Lưu ý: nhóm user thứ hai chỉ tồn tại trong database đang chạy của bạn.
+> Nếu chạy `scripts/reset-db.ps1`, DB sẽ được tạo lại bằng Flyway và chỉ còn
+> `admin` + 3 user `nguyen.van.a` / `tran.thi.b` / `le.van.c`.
+
+👉 **Chi tiết:** Xem file [QUICK_START.md](QUICK_START.md) và [ACCOUNTS.md](ACCOUNTS.md)
+
+---
+
+## 🗄️ Database & Migrations
+
+**Flyway là nguồn duy nhất** tạo schema và seed dữ liệu — không dùng
+`database/init.sql` để seed nữa (file này chỉ còn để tham khảo). Trước đây
+việc mount `init.sql` vào MySQL cùng lúc với Flyway đã gây ra dữ liệu demo
+trùng/lệch (sai tên không gian, sai chủ sở hữu).
+
+**Quy tắc làm việc:**
+
+- Migration tự chạy khi backend khởi động: `src/main/resources/db/migration`.
+- **Không sửa** file migration đã áp dụng (Flyway kiểm tra checksum).
+- Thay đổi schema/dữ liệu mới → thêm file mới `V12__mo_ta_ngan.sql`, `V13__...`.
+- Hibernate chạy `ddl-auto: validate` — schema do Flyway quản lý, không tự sửa.
+- Không commit mật khẩu thật; truyền qua biến môi trường.
+
+**Reset database local (xoá sạch rồi để Flyway tạo lại):**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/reset-db.ps1
+# hoặc bỏ xác nhận:
+powershell -ExecutionPolicy Bypass -File scripts/reset-db.ps1 -Force
+```
+
+Sau đó khởi động backend:
+
+```bash
+./gradlew bootRun
+```
+
+Flyway sẽ tự áp dụng `V1 → V11` và seed dữ liệu demo.
 
 ---
 
@@ -122,10 +172,14 @@ BTON/
 │   └── BtonApplication.java           # Main Application
 │
 ├── src/main/resources/
-│   ├── db/migration/                   # Flyway Migrations
+│   ├── db/migration/                   # Flyway Migrations (single source of truth)
 │   │   ├── V1__init_schema.sql        # Database Schema
 │   │   ├── V2__seed_categories.sql    # System Categories
-│   │   └── V3__seed_demo_data.sql     # Demo Data
+│   │   ├── V3__seed_demo_data.sql     # Demo Data
+│   │   ├── V4..V8                    # Schema refinements
+│   │   ├── V9__seed_admin_demo_data.sql
+│   │   ├── V10__fix_demo_user_spaces.sql
+│   │   └── V11__restore_system_categories.sql
 │   └── application.yml                 # Application Config
 │
 ├── frontend/                           # Frontend React App
@@ -281,19 +335,21 @@ GET    /api/v1/admin/audit-logs      # Audit logs
 ### Backend Tests
 ```bash
 # Run all tests
-./mvnw test
+./gradlew test
 
-# Run with coverage
-./mvnw test jacoco:report
+# Run tests + coverage report (build/reports/jacoco/test/html/index.html)
+./gradlew test jacocoTestReport
 
 # Skip tests during build
-./mvnw clean package -DskipTests
+./gradlew clean build -x test
 ```
 
 ### Frontend Tests
 ```bash
 cd frontend
-npm run test
+npm run lint      # ESLint, 0 warning allowed
+npx tsc --noEmit  # TypeScript type check
+npm run build     # Production build
 ```
 
 ---
@@ -303,10 +359,10 @@ npm run test
 ### Backend (Spring Boot)
 ```bash
 # Build JAR
-./mvnw clean package
+./gradlew clean build
 
 # Run JAR
-java -jar target/bton-0.0.1-SNAPSHOT.jar
+java -jar build/libs/BTON-1.0.0.jar
 
 # Or deploy to:
 # - Heroku
@@ -450,3 +506,20 @@ Nếu bạn gặp vấn đề hoặc có câu hỏi:
 **Made with ❤️ by BTON Team**
 
 ⭐ **Star this repo if you find it helpful!**
+Trong DB hiện tại chỉ có 5 tài khoản, không còn tài khoản nào khác:
+
+     ┌─────────┬─────────────────┬────────────────────┬────────────┬─────────────────────────────┐  
+     │#        │Username         │Password            │Role        │Có dữ liệu?                  │  
+     ├─────────┼─────────────────┼────────────────────┼────────────┼─────────────────────────────┤  
+     │1        │admin            │Admin@1234          │ADMIN       │Không (không có space)       │  
+     ├─────────┼─────────────────┼────────────────────┼────────────┼─────────────────────────────┤  
+     │2        │huunhat          │Password123!        │USER        │Có đầy đủ                    │  
+     ├─────────┼─────────────────┼────────────────────┼────────────┼─────────────────────────────┤  
+     │3        │hoangphuc        │Password123!        │USER        │Chỉ 2 ví                     │  
+     ├─────────┼─────────────────┼────────────────────┼────────────┼─────────────────────────────┤  
+     │4        │thephong         │Password123!        │USER        │Chỉ 2 ví                     │  
+     ├─────────┼─────────────────┼────────────────────┼────────────┼─────────────────────────────┤  
+     │5        │manhthang        │Password123!        │USER        │Chỉ 2 ví                     │  
+     └─────────┴─────────────────┴────────────────────┴────────────┴─────────────────────────────┘
+cd vào OJT CHẠY
+.\gradlew.bat bootRun

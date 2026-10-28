@@ -1,3 +1,4 @@
+import { getErrorMessage } from '../../lib/apiError';
 // Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useEffect, useState } from 'react';
 import { User, Lock, Wallet, Save, Plus, Home } from 'lucide-react';
@@ -52,8 +53,8 @@ export default function Settings() {
       setSpaceForm({ name: '', description: '' });
       fetchSpaces();
       setCurrentSpace(data);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể tạo không gian');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể tạo không gian'));
     } finally {
       setCreatingSpace(false);
     }
@@ -65,9 +66,9 @@ export default function Settings() {
       await api.delete(`/spaces/${space.id}`);
       toast.success('Đã xóa không gian');
       fetchSpaces();
-      if (currentSpace?.id === space.id) setCurrentSpace(null as any);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể xóa');
+      if (currentSpace?.id === space.id) setCurrentSpace(null);
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể xóa'));
     }
   };
 
@@ -128,8 +129,10 @@ export default function Settings() {
 
     if (!passwordData.newPassword) {
       newErrors.newPassword = 'Vui lòng nhập mật khẩu mới';
-    } else if (passwordData.newPassword.length < 6) {
-      newErrors.newPassword = 'Mật khẩu phải có ít nhất 6 ký tự';
+    } else if (passwordData.newPassword.length < 8) {
+      newErrors.newPassword = 'Mật khẩu phải có ít nhất 8 ký tự';
+    } else if (passwordData.newPassword.length > 100) {
+      newErrors.newPassword = 'Mật khẩu không được vượt quá 100 ký tự';
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(passwordData.newPassword)) {
       newErrors.newPassword = 'Mật khẩu phải có chữ hoa, chữ thường và số';
     }
@@ -157,8 +160,8 @@ export default function Settings() {
       const response = await api.put('/users/profile', profileData);
       updateUser(response.data);
       toast.success('Cập nhật thông tin thành công');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Cập nhật thất bại');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Cập nhật thất bại'));
     } finally {
       setLoading(false);
     }
@@ -188,8 +191,8 @@ export default function Settings() {
         newPassword: '',
         confirmPassword: '',
       });
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Đổi mật khẩu thất bại');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Đổi mật khẩu thất bại'));
     } finally {
       setLoading(false);
     }
@@ -213,7 +216,7 @@ export default function Settings() {
     { id: 'profile', label: 'Thông tin cá nhân', icon: User },
     { id: 'password', label: 'Đổi mật khẩu', icon: Lock },
     { id: 'spaces', label: 'Không gian tài chính', icon: Wallet },
-  ];
+  ] as const;
 
   return (
     <div className="space-y-6">
@@ -232,7 +235,7 @@ export default function Settings() {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
                     activeTab === tab.id
                       ? 'bg-primary text-white'
@@ -341,7 +344,7 @@ export default function Settings() {
                 )}
                 {!passwordErrors.newPassword && passwordData.newPassword && (
                   <p className="mt-1 text-xs text-gray-500">
-                    Phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số
+                    Phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số
                   </p>
                 )}
               </div>

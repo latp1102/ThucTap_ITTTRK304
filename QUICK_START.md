@@ -19,8 +19,6 @@ Hoặc sửa file `src/main/resources/application.yml` cho phù hợp.
 
 ```bash
 # Từ thư mục gốc dự án BTON
-./mvnw clean spring-boot:run
-# hoặc nếu dùng Gradle:
 ./gradlew bootRun
 ```
 
@@ -93,13 +91,13 @@ Password: User@1234
 ### Backend:
 ```bash
 # Build
-./mvnw clean package
+./gradlew clean build
 
 # Run tests
-./mvnw test
+./gradlew test
 
 # Skip tests
-./mvnw clean package -DskipTests
+./gradlew clean build -x test
 ```
 
 ### Frontend:

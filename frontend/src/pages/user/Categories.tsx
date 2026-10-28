@@ -1,3 +1,4 @@
+import { getErrorMessage } from '../../lib/apiError';
 // Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Lock } from 'lucide-react';
@@ -80,8 +81,8 @@ export default function Categories() {
       }
       setShowForm(false);
       fetchCategories();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể lưu danh mục');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể lưu danh mục'));
     } finally {
       setSaving(false);
     }
@@ -97,8 +98,8 @@ export default function Categories() {
       await api.delete(`/categories/${c.id}`);
       toast.success('Đã xóa danh mục');
       fetchCategories();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể xóa danh mục');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể xóa danh mục'));
     }
   };
 

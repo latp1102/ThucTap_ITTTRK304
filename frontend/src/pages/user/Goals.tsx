@@ -1,3 +1,4 @@
+import { getErrorMessage } from '../../lib/apiError';
 // Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useEffect, useState } from 'react';
 import { Plus, Target, TrendingUp, Pencil, Trash2, Wallet, XCircle } from 'lucide-react';
@@ -124,8 +125,8 @@ export default function Goals() {
       }
       setShowForm(false);
       fetchGoals();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể lưu mục tiêu');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể lưu mục tiêu'));
     } finally {
       setSaving(false);
     }
@@ -146,8 +147,8 @@ export default function Goals() {
       setShowAddAmount(null);
       setAddAmount('');
       fetchGoals();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể cập nhật');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể cập nhật'));
     }
   };
 
@@ -157,8 +158,8 @@ export default function Goals() {
       await api.patch(`/savings-goals/${g.id}/cancel`);
       toast.success('Đã hủy mục tiêu');
       fetchGoals();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể hủy');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể hủy'));
     }
   };
 
@@ -168,8 +169,8 @@ export default function Goals() {
       await api.delete(`/savings-goals/${id}`);
       toast.success('Đã xóa mục tiêu');
       fetchGoals();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể xóa');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể xóa'));
     }
   };
 

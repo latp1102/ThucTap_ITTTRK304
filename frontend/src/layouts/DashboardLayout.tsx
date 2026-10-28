@@ -1,6 +1,7 @@
 // Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -24,12 +25,14 @@ import { useSpaceStore } from '../store/spaceStore';
 import api from '../lib/axios';
 import { FinancialSpace, NotificationItem, PageResponse } from '../types';
 import { formatDateTime } from '../lib/utils';
+import LanguageToggle from '../i18n/LanguageToggle';
 
 export default function DashboardLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, logout } = useAuthStore();
-  const { currentSpace, spaces, setSpaces, setCurrentSpace } = useSpaceStore();
+  const { currentSpace, spaces, setSpaces, setCurrentSpace, clear: clearSpaces } = useSpaceStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showSpaceMenu, setShowSpaceMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -47,10 +50,13 @@ export default function DashboardLayout() {
         const stillValid = store.currentSpace
           ? data.find((s) => s.id === store.currentSpace!.id)
           : null;
+        const preferred = data.find((s) => s.type === 'PERSONAL') ?? data[0];
         if (!stillValid && data.length > 0) {
-          setCurrentSpace(data[0]);
+          setCurrentSpace(preferred);
         } else if (stillValid) {
           setCurrentSpace(stillValid);
+        } else {
+          setCurrentSpace(null);
         }
       } catch {
         // stay silent — pages show "select a space" hint
@@ -88,6 +94,7 @@ export default function DashboardLayout() {
     } catch {
       // ignore — logout locally regardless
     }
+    clearSpaces();
     logout();
     navigate('/login');
   };
@@ -103,26 +110,29 @@ export default function DashboardLayout() {
   };
 
   const userNavItems = [
-    { path: '/', label: 'Tổng quan', icon: LayoutDashboard },
-    { path: '/transactions', label: 'Giao dịch', icon: ArrowLeftRight },
-    { path: '/wallets', label: 'Ví tiền', icon: Wallet },
-    { path: '/budget', label: 'Ngân sách', icon: BarChart3 },
-    { path: '/goals', label: 'Mục tiêu', icon: Target },
-    { path: '/family', label: 'Gia đình', icon: Home },
-    { path: '/categories', label: 'Danh mục', icon: Tags },
-    { path: '/reports', label: 'Báo cáo', icon: BarChart3 },
+    { path: '/', label: 'nav.user.overview', icon: LayoutDashboard },
+    { path: '/transactions', label: 'nav.user.transactions', icon: ArrowLeftRight },
+    { path: '/wallets', label: 'nav.user.wallets', icon: Wallet },
+    { path: '/budget', label: 'nav.user.budget', icon: BarChart3 },
+    { path: '/goals', label: 'nav.user.goals', icon: Target },
+    { path: '/family', label: 'nav.user.family', icon: Home },
+    { path: '/categories', label: 'nav.user.categories', icon: Tags },
+    { path: '/reports', label: 'nav.user.reports', icon: BarChart3 },
   ];
 
   const adminNavItems = [
-    { path: '/admin', label: 'Dashboard', icon: Shield },
-    { path: '/admin/users', label: 'Users', icon: Users },
-    { path: '/admin/categories', label: 'Categories', icon: FileText },
-    { path: '/admin/audit-logs', label: 'Audit Logs', icon: FileText },
+    { path: '/admin', label: 'nav.admin.dashboard', icon: Shield },
+    { path: '/admin/users', label: 'nav.admin.users', icon: Users },
+    { path: '/admin/categories', label: 'nav.admin.categories', icon: FileText },
+    { path: '/admin/audit-logs', label: 'nav.admin.auditLogs', icon: FileText },
   ];
 
-  const navItems = user?.role === 'ADMIN' && location.pathname.startsWith('/admin')
-    ? adminNavItems
-    : userNavItems;
+  const navSections = user?.role === 'ADMIN'
+    ? [
+        { title: 'nav.sections.admin' as string | null, items: adminNavItems },
+        { title: 'nav.sections.user' as string | null, items: userNavItems },
+      ]
+    : [{ title: null as string | null, items: userNavItems }];
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -154,31 +164,40 @@ export default function DashboardLayout() {
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 overflow-y-auto">
-            <ul className="space-y-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
-                return (
-                  <li key={item.path}>
-                    <Link
-                      to={item.path}
-                      onClick={() => setSidebarOpen(false)}
-                      className={`
-                        flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
-                        ${
-                          isActive
-                            ? 'bg-primary text-white'
-                            : 'text-gray-700 hover:bg-gray-100'
-                        }
-                      `}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span className="font-medium">{item.label}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+            {navSections.map((section, sectionIndex) => (
+              <div key={section.title ?? 'main'} className={sectionIndex > 0 ? 'mt-6' : ''}>
+                {section.title && (
+                  <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    {t(section.title)}
+                  </p>
+                )}
+                <ul className="space-y-1">
+                  {section.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <li key={item.path}>
+                        <Link
+                          to={item.path}
+                          onClick={() => setSidebarOpen(false)}
+                          className={`
+                            flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+                            ${
+                              isActive
+                                ? 'bg-primary text-white'
+                                : 'text-gray-700 hover:bg-gray-100'
+                            }
+                          `}
+                        >
+                          <Icon className="w-5 h-5" />
+                          <span className="font-medium">{t(item.label)}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
           </nav>
 
           {/* Bottom Menu */}
@@ -196,14 +215,14 @@ export default function DashboardLayout() {
               `}
             >
               <Settings className="w-5 h-5" />
-              <span className="font-medium">Cài đặt</span>
+              <span className="font-medium">{t('common.settings')}</span>
             </Link>
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-3 py-2.5 mt-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
             >
               <LogOut className="w-5 h-5" />
-              <span className="font-medium">Đăng xuất</span>
+              <span className="font-medium">{t('common.logout')}</span>
             </button>
           </div>
         </div>
@@ -240,7 +259,7 @@ export default function DashboardLayout() {
                     className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
                   >
                     <Wallet className="w-4 h-4 text-gray-600" />
-                    <span className="text-sm font-medium">{currentSpace?.name || 'Chọn không gian'}</span>
+                    <span className="text-sm font-medium">{currentSpace?.name || t('header.selectSpace')}</span>
                     <ChevronDown className="w-4 h-4 text-gray-400" />
                   </button>
                   {showSpaceMenu && (
@@ -258,7 +277,9 @@ export default function DashboardLayout() {
                           <div className="text-left">
                             <div className="text-sm font-medium">{space.name}</div>
                             <div className="text-xs text-gray-500">
-                              {space.type === 'FAMILY' ? 'Gia đình' : 'Cá nhân'}
+                              {space.type === 'FAMILY'
+                                ? t('header.spaceType.family')
+                                : t('header.spaceType.personal')}
                             </div>
                           </div>
                         </button>
@@ -267,6 +288,9 @@ export default function DashboardLayout() {
                   )}
                 </div>
               )}
+
+              {/* Language Toggle */}
+              <LanguageToggle />
 
               {/* Notifications */}
               <div className="relative">
@@ -284,17 +308,17 @@ export default function DashboardLayout() {
                 {showNotifications && (
                   <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                      <span className="font-semibold text-gray-900">Thông báo</span>
+                      <span className="font-semibold text-gray-900">{t('header.notifications')}</span>
                       <button
                         onClick={handleMarkAllRead}
                         className="text-xs text-primary hover:text-primary-dark"
                       >
-                        Đánh dấu đã đọc
+                        {t('header.markAllRead')}
                       </button>
                     </div>
                     <div className="max-h-96 overflow-y-auto">
                       {notifications.length === 0 ? (
-                        <p className="text-sm text-gray-500 text-center py-8">Không có thông báo</p>
+                        <p className="text-sm text-gray-500 text-center py-8">{t('header.noNotifications')}</p>
                       ) : (
                         notifications.map((n) => (
                           <div
@@ -338,27 +362,11 @@ export default function DashboardLayout() {
                         className="flex items-center gap-2 px-4 py-2.5 hover:bg-gray-50 text-sm"
                       >
                         <Shield className="w-4 h-4" />
-                        {location.pathname.startsWith('/admin') ? 'User Dashboard' : 'Admin Panel'}
+                        {location.pathname.startsWith('/admin')
+                          ? t('header.userDashboard')
+                          : t('header.adminPanel')}
                       </Link>
                     )}
-                    <Link
-                      to="/settings"
-                      onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 hover:bg-gray-50 text-sm"
-                    >
-                      <Settings className="w-4 h-4" />
-                      Cài đặt
-                    </Link>
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setShowUserMenu(false);
-                      }}
-                      className="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-gray-50 text-sm text-danger"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Đăng xuất
-                    </button>
                   </div>
                 )}
               </div>

@@ -1,3 +1,4 @@
+import { getErrorMessage } from '../../lib/apiError';
 // Tác giả: Nguyễn Hoàng Phúc (Frontend Lead & UI/UX)
 import { useEffect, useState } from 'react';
 import { Plus, Download, Search, Pencil, Trash2, Image as ImageIcon } from 'lucide-react';
@@ -145,8 +146,8 @@ export default function Transactions() {
       }
       setShowForm(false);
       fetchTransactions();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể lưu giao dịch');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể lưu giao dịch'));
     } finally {
       setSaving(false);
     }
@@ -158,8 +159,8 @@ export default function Transactions() {
       await api.delete(`/transactions/${id}`);
       toast.success('Đã xóa giao dịch');
       fetchTransactions();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Không thể xóa giao dịch');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Không thể xóa giao dịch'));
     }
   };
 

@@ -27,7 +27,9 @@ services:
       - "${MYSQL_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      # NOTE: schema + seed data are owned by Flyway (src/main/resources/db/migration).
+      # Do NOT mount database/init.sql here — running two seed sources caused
+      # duplicated/conflicting demo data. The backend creates the schema on startup.
       - ./scripts/backup:/backup          # mount backup directory
     networks:
       - bton-net

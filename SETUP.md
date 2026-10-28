@@ -61,24 +61,17 @@ springdoc.swagger-ui.path=/swagger-ui.html
 
 ### 3. Chạy Backend
 
-Sử dụng Maven:
-
-```bash
-# Compile và chạy
-./mvnw clean install
-./mvnw spring-boot:run
-
-# Hoặc build jar và chạy
-./mvnw clean package
-java -jar target/bton-0.0.1-SNAPSHOT.jar
-```
-
-Sử dụng Gradle:
+Sử dụng Gradle (khuyến nghị, đã kèm wrapper):
 
 ```bash
 ./gradlew clean build
 ./gradlew bootRun
+
+# Hoặc build jar và chạy
+java -jar build/libs/BTON-1.0.0.jar
 ```
+
+Nếu dùng Maven (cần cài Maven 3.8+): `mvn spring-boot:run`.
 
 Backend sẽ chạy tại: `http://localhost:8080`
 
@@ -295,23 +288,25 @@ BTON/
 
 ```bash
 # Run tests
-./mvnw test
+./gradlew test
 
 # With coverage
-./mvnw test jacoco:report
+./gradlew test jacocoTestReport
 ```
 
 ### Frontend Testing
 
 ```bash
 cd frontend
-npm run test
+npm run lint
+npx tsc --noEmit
+npm run build
 ```
 
 ## Troubleshooting
 
 ### Backend không khởi động
-- Kiểm tra PostgreSQL đã chạy chưa
+- Kiểm tra MySQL đã chạy chưa
 - Kiểm tra username/password database
 - Kiểm tra port 8080 có bị chiếm không
 
